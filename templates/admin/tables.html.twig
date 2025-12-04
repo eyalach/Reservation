@@ -1,0 +1,30 @@
+{# templates/admin/tables.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Gérer les tables{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Gérer les tables du restaurant</h1>
+
+        <div class="row row-cols-2 row-cols-md-4 g-4">
+            {% for i in 1..20 %}
+                <div class="col">
+                    <div class="card text-center h-100 border-3
+                    {% if i <= 12 %}border-success{% else %}border-secondary{% endif %}">
+                        <div class="card-body">
+                            <h2 class="card-title">Table {{ i }}</h2>
+                            <span class="badge bg-{{ i <= 12 ? 'success' : 'secondary' }} fs-6">
+                            {{ i <= 12 ? 'Occupée' : 'Libre' }}
+                        </span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-5">
+            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">← Retour</a>
+        </div>
+    </div>
+{% endblock %}

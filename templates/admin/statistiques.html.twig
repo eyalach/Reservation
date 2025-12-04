@@ -1,0 +1,66 @@
+{# templates/admin/statistiques.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Statistiques{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-5">Statistiques du restaurant</h1>
+
+        <div class="row g-5">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5>Chiffre d'affaires - 7 derniers jours</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="caChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5>Plats les plus vendus</h5>
+                    </div>
+                    <div class="card-body">
+                        <ol class="list-group list-group-numbered">
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Pizza Margherita</span><strong>87</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Burger Classic</span><strong>65</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>Salade César</span><strong>52</strong>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">← Retour</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        new Chart(document.getElementById('caChart'), {
+            type: 'line',
+            data: {
+                labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+                datasets: [{
+                    label: 'CA (€)',
+                    data: [980, 1200, 1100, 1350, 1850, 2200, 1950],
+                    borderColor: '#0d6efd',
+                    tension: 0.4,
+                    fill: true,
+                    backgroundColor: 'rgba(13, 110, 253, 0.1)'
+                }]
+            }
+        });
+    </script>
+{% endblock %}

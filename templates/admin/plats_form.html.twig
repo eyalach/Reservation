@@ -1,0 +1,40 @@
+{# templates/admin/plat_form.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ plat.id ? 'Modifier' : 'Ajouter' }} un plat{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">{{ plat.id ? 'Modifier' : 'Ajouter' }} un plat</h1>
+
+        {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+
+        <div class="col-md-6">
+            {{ form_row(form.nom) }}
+        </div>
+
+        <div class="col-md-6">
+            {{ form_row(form.prix) }}
+        </div>
+
+        <div class="col-12">
+            {{ form_row(form.description) }}
+        </div>
+
+        <div class="col-12">
+            <div class="form-check">
+                {{ form_widget(form.disponible, {'attr': {'class': 'form-check-input'}}) }}
+                {{ form_label(form.disponible, null, {'label_attr': {'class': 'form-check-label'}}) }}
+            </div>
+        </div>
+
+        <div class="col-12 mt-4">
+            <button class="btn btn-success btn-lg">Enregistrer le plat</button>
+            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary btn-lg ms-3">
+                Annuler
+            </a>
+        </div>
+
+        {{ form_end(form) }}
+    </div>
+{% endblock %}
