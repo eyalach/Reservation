@@ -1,0 +1,54 @@
+{# templates/admin/utilisateurs.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Gestion des utilisateurs{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="h3 mb-4">
+            Gestion des utilisateurs
+            <div class="float-end">
+                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-primary btn-sm me-2">
+                    Tableau de bord
+                </a>
+                <a href="{{ path('app_admin_ajouter_utilisateur') }}" class="btn btn-success btn-sm">
+                    + Ajouter
+                </a>
+            </div>
+        </h1>
+
+        <table class="table table-striped">
+            <thead class="table-dark">
+            <tr>
+                <th>Email</th>
+                <th>Nom complet</th>
+                <th>Téléphone</th>
+                <th>Rôle</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.nom }} {{ user.prenom }}</td>
+                    <td>{{ user.tel|default('Non renseigné') }}</td>
+                    <td>{{ _self.afficherRole(user.roles) }}</td>
+                </tr>
+            {% else %}
+                <tr><td colspan="4" class="text-center">Aucun utilisateur</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
+{% macro afficherRole(roles) %}
+    {% set role = roles|first|default('ROLE_USER') %}
+    {% if role == 'ROLE_ADMIN' %}
+        <span class="badge bg-danger">Administrateur</span>
+    {% elseif role == 'ROLE_SERVEUR' %}
+        <span class="badge bg-primary">Serveur</span>
+    {% else %}
+        <span class="badge bg-secondary">Client</span>
+    {% endif %}
+{% endmacro %}

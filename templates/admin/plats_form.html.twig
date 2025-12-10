@@ -1,40 +1,88 @@
-{# templates/admin/plat_form.html.twig #}
+{# templates/admin/plats_form.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ plat.id ? 'Modifier' : 'Ajouter' }} un plat{% endblock %}
+{% block title %}
+    {{ plat.id ? 'Modifier le plat' : 'Ajouter un nouveau plat' }} - Le Délice
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4">{{ plat.id ? 'Modifier' : 'Ajouter' }} un plat</h1>
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-7">
 
-        {{ form_start(form, {'attr': {'class': 'row g-3'}}) }}
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-dark text-white text-center py-4">
+                        <h2 class="mb-0">
+                            <i class="bi bi-plus-circle me-2"></i>
+                            {{ plat.id ? 'Modifier le plat' : 'Ajouter un nouveau plat' }}
+                        </h2>
+                    </div>
 
-        <div class="col-md-6">
-            {{ form_row(form.nom) }}
-        </div>
+                    <div class="card-body p-5">
+                        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 
-        <div class="col-md-6">
-            {{ form_row(form.prix) }}
-        </div>
+                        <div class="mb-4">
+                            {{ form_label(form.nom, 'Nom du plat') }}
+                            {{ form_widget(form.nom, {'attr': {'class': 'form-control form-control-lg', 'placeholder': 'Ex: Burger Maison'}}) }}
+                            {{ form_errors(form.nom) }}
+                        </div>
 
-        <div class="col-12">
-            {{ form_row(form.description) }}
-        </div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                {{ form_label(form.prix, 'Prix (DT)') }}
+                                {{ form_widget(form.prix, {'attr': {'class': 'form-control form-control-lg', 'step': '0.01', 'placeholder': '12.90'}}) }}
+                                {{ form_errors(form.prix) }}
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-4">
+                                    {{ form_widget(form.disponible, {'attr': {'class': 'form-check-input', 'role': 'switch', 'checked': plat.disponible ?? true}}) }}
+                                    {{ form_label(form.disponible, 'Disponible à la carte', {'label_attr': {'class': 'form-check-label fw-bold'}}) }}
+                                </div>
+                            </div>
+                        </div>
 
-        <div class="col-12">
-            <div class="form-check">
-                {{ form_widget(form.disponible, {'attr': {'class': 'form-check-input'}}) }}
-                {{ form_label(form.disponible, null, {'label_attr': {'class': 'form-check-label'}}) }}
+                        <div class="mb-4">
+                            {{ form_label(form.description, 'Description') }}
+                            {{ form_widget(form.description, {'attr': {'class': 'form-control', 'rows': 4, 'placeholder': 'Décrivez les ingrédients, la préparation...'}}) }}
+                            {{ form_errors(form.description) }}
+                        </div>
+
+                        {# Si tu as un champ imageFile dans ton formulaire (même sans Vich) #}
+                        {% if form.imageFile is defined %}
+                            <div class="mb-4">
+                                {{ form_row(form.imageFile, {
+                                    'label': 'Photo du plat (facultatif)',
+                                    'attr': {'class': 'form-control'}
+                                }) }}
+
+                                {# Affichage de l'image actuelle si elle existe (chemin manuel) #}
+                                {% if plat.imageName ?? false %}
+                                    <div class="mt-3 text-center">
+                                        <p class="text-muted mb-2">Image actuelle :</p>
+                                        <img src="{{ asset('uploads/plats/' ~ plat.imageName) }}"
+                                             alt="{{ plat.nom }}"
+                                             class="img-thumbnail"
+                                             style="max-height: 150px; max-width: 100%;">
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <div class="d-grid d-md-flex justify-content-md-end gap-3 mt-5">
+                            <a href="{{ path('app_admin_plats') }}" class="btn btn-secondary btn-lg">
+                                ← Annuler
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">
+                                <i class="bi bi-check2"></i>
+                                {{ plat.id ? 'Enregistrer les modifications' : 'Ajouter le plat' }}
+                            </button>
+                        </div>
+
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+
             </div>
         </div>
-
-        <div class="col-12 mt-4">
-            <button class="btn btn-success btn-lg">Enregistrer le plat</button>
-            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary btn-lg ms-3">
-                Annuler
-            </a>
-        </div>
-
-        {{ form_end(form) }}
     </div>
 {% endblock %}

@@ -1,0 +1,11 @@
+{# templates/client/dashboard.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Mon espace client{% endblock %}
+{% block body %}
+    <h1>Bienvenue {{ app.user.prenom }}</h1>
+    <div class="row mt-4">
+        <div class="col-md-4"><a href="{{ path('app_client_reserver_table') }}" class="btn btn-primary btn-lg w-100 p-5">Réserver une table</a></div>
+        <div class="col-md-4"><a href="{{ path('app_client_passer_commande') }}" class="btn btn-success btn-lg w-100 p-5">Commander en ligne</a></div>
+        <div class="col-md-4"><a href="{{ path('app_client_historique') }}" class="btn btn-info btn-lg w-100 p-5 text-white">Mon historique</a></div>
+    </div>
+{% endblock %}

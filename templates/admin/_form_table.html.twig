@@ -1,0 +1,14 @@
+{{ form_start(form) }}
+<div class="row">
+    <div class="col-md-6">
+        {{ form_row(form.numero) }}
+    </div>
+    <div class="col-md-6">
+        {{ form_row(form.nb_places) }}
+    </div>
+</div>
+<div class="form-check mt-3">
+    {{ form_row(form.estlibre) }}
+</div>
+<button type="submit" class="btn btn-primary mt-3">{{ button_label|default('Sauvegarder') }}</button>
+{{ form_end(form) }}

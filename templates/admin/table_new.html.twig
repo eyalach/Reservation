@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block title %}Nouvelle table{% endblock %}
+{% block body %}
+    <div class="container mt-5">
+        <h1>Ajouter une table</h1>
+        {{ include('admin/_form_table.html.twig', {form: form, button_label: 'Créer'}) }}
+        <a href="{{ path('app_admin_table_index') }}" class="btn btn-secondary mt-3">← Retour</a>
+    </div>
+{% endblock %}

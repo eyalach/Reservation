@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+{% block title %}Modifier table {{ table.numero }}{% endblock %}
+{% block body %}
+    <div class="container mt-5">
+        <h1>Modifier la table {{ table.numero }}</h1>
+        {{ include('admin/_form_table.html.twig', {form: form, button_label: 'Mettre à jour'}) }}
+        <a href="{{ path('app_admin_table_index') }}" class="btn btn-secondary mt-3">← Retour</a>
+    </div>
+{% endblock %}

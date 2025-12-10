@@ -1,0 +1,63 @@
+{# templates/admin/utilisateur_form.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter un utilisateur{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white text-center">
+                        <h2>Ajouter un utilisateur</h2>
+                    </div>
+                    <div class="card-body p-5">
+                        {{ form_start(form) }}
+                        <div class="mb-3">
+                            {{ form_label(form.email) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'form-control form-control-lg'}}) }}
+                            {{ form_errors(form.email) }}
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                {{ form_label(form.nom) }}
+                                {{ form_widget(form.nom, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form_label(form.prenom) }}
+                                {{ form_widget(form.prenom, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.tel) }}
+                            {{ form_widget(form.tel, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form_label(form.plainPassword.first) }}
+                            {{ form_widget(form.plainPassword.first, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        <div class="mb-3">
+                            {{ form_label(form.plainPassword.second) }}
+                            {{ form_widget(form.plainPassword.second, {'attr': {'class': 'form-control'}}) }}
+                            {{ form_errors(form.plainPassword) }}
+                        </div>
+
+                        <div class="mb-4">
+                            <strong>{{ form_label(form.roles) }}</strong><br>
+                            {{ form_widget(form.roles) }}
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{{ path('app_admin_utilisateurs') }}" class="btn btn-secondary btn-lg">Annuler</a>
+                            <button type="submit" class="btn btn-success btn-lg px-5">Créer l'utilisateur</button>
+                        </div>
+                        {{ form_end(form) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{# templates/client/historique.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Mon historique{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="h2 mb-5 text-center text-info">Mon historique</h1>
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h4>Réservations</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if reservations|length > 0 %}
+                            {% for r in reservations %}
+                                <div class="border-bottom pb-3 mb-3">
+                                    <strong>{{ r.dateHeure|date('d/m/Y à H:i') }}</strong><br>
+                                    <small>{{ r.personnes }} personne{{ r.personnes > 1 ? 's' }}</small>
+                                    {% if r.message %}<br><em>"{{ r.message }}"</em>{% endif %}
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">Aucune réservation pour le moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card shadow mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h4>Commandes en ligne</h4>
+                    </div>
+                    <div class="card-body">
+                        {% if commandes|length > 0 %}
+                            {% for c in commandes %}
+                                <div class="border-bottom pb-3 mb-3">
+                                    <strong>Commande #{{ c.id }} - {{ c.date|date('d/m/Y H:i') }}</strong><br>
+                                    <small class="text-success">{{ c.total }} DT - {{ c.modePaiement }}</small>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted">Aucune commande passée.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

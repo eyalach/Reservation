@@ -1,0 +1,45 @@
+{# templates/client/reserver_table.html.twig #}
+{% extends 'base.html.twig' %}
+{% block title %}Réserver une table{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="h2 mb-4 text-center text-primary">Réserver une table</h1>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow">
+                    <div class="card-body p-5">
+                        <form method="post" action="{{ path('app_client_reserver_table_post') }}">
+                            <div class="mb-3">
+                                <label class="form-label">Date et heure</label>
+                                <input type="datetime-local" name="date_heure" class="form-control form-control-lg" required
+                                       min="{{ 'now'|date('Y-m-d\\TH:i') }}" value="{{ 'now + 1 hour'|date('Y-m-d\\TH:i') }}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Nombre de personnes</label>
+                                <select name="personnes" class="form-select form-select-lg" required>
+                                    {% for i in 1..10 %}
+                                        <option value="{{ i }}">{{ i }} personne{{ i > 1 ? 's' }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label">Message (facultatif)</label>
+                                <textarea name="message" rows="3" class="form-control" placeholder="Ex: Anniversaire, table près de la fenêtre..."></textarea>
+                            </div>
+
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary btn-lg px-5">
+                                    Confirmer la réservation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{# templates/admin/dashboard.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Admin - Tableau de bord{% endblock %}
+
+{% block body %}
+    {# Icône de déconnexion simple en haut à droite #}
+    <div class="position-fixed" style="top: 15px; right: 20px; z-index: 1050;">
+        <a href="{{ path('app_logout') }}"
+           class="btn btn-danger rounded-circle shadow-sm"
+           title="Se déconnecter"
+           data-bs-toggle="tooltip"
+           data-bs-placement="left">
+            <i class="fas fa-power-off"></i>
+        </a>
+    </div>
+    <div class="row text-center">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary p-4">
+                <h3>CA Jour<br><strong>1 245 DT</strong></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-success p-4">
+                <h3>Commandes<br><strong>48</strong></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-warning p-4">
+                <h3>Tables occupées<br><strong>12/20</strong></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger p-4">
+                <h3>En attente cuisine<br><strong>7</strong></h3>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="mt-5">Raccourcis</h2>
+
+    <div class="row mt-3">
+        <div class="col-md-4 mb-3">
+            <a href="{{ path('app_admin_plats') }}" class="btn btn-lg btn-secondary w-100">
+                Gérer les plats
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ path('app_admin_table_index') }}" class="btn btn-lg btn-info w-100 text-white">
+                Gérer les tables
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ path('app_admin_statistiques') }}" class="btn btn-lg btn-success w-100">
+                Statistiques
+            </a>
+        </div>
+        <div class="col-md-4 mb-3">
+            <a href="{{ path('app_admin_utilisateurs') }}" class="btn btn-lg btn-warning w-100">
+                Gérer les utilisateurs
+            </a>
+        </div>
+    </div>
+{% endblock %}

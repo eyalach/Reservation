@@ -1,0 +1,89 @@
+{# templates/serveur/commandes_en_cours.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Commandes en cours{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="h3 mb-4 text-center text-primary">Commandes en cours</h1>
+
+        {% if commandes|length > 0 %}
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                {% for commande in commandes %}
+                    <div class="col">
+                        <div class="card shadow-sm h-100 {% if commande.status.value == 'EN_COURS' %}border-warning{% elseif commande.status.value == 'PRETE' %}border-success{% endif %}">
+                            <div class="card-header {% if commande.status.value == 'EN_COURS' %}bg-warning text-dark{% elseif commande.status.value == 'PRETE' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">
+                                        Table {{ commande.tableCommande.numero }}
+                                    </h5>
+                                    <span class="badge bg-light text-dark fs-6">
+                                    {{ commande.status.value }}
+                                </span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="mb-1"><strong>Heure :</strong> {{ commande.date|date('H:i') }}</p>
+                                <p class="mb-3"><strong>Total :</strong> {{ commande.total|number_format(2) }} DT</p>
+
+                                <hr>
+
+                                <h6 class="mb-3">Détail de la commande :</h6>
+                                <ul class="list-group list-group-flush mb-4">
+                                    {% for ligne in commande.ligneCommandes %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-start px-0">
+                                            <div>
+                                                <strong>{{ ligne.quantite }} × {{ ligne.plat.nom }}</strong>
+
+                                            </div>
+                                            <span class="text-end fw-bold">{{ (ligne.prixUnitaire * ligne.quantite)|number_format(2) }} DT</span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <!-- Actions sur le statut -->
+                                <div class="text-center">
+                                    {% if commande.status.value == 'EN_COURS' %}
+                                        <form method="post" action="{{ path('app_serveur_commande_changer_statut', {id: commande.id, nouveauStatut: 'prete'}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('statut' ~ commande.id) }}">
+                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-clock me-1"></i> Marquer comme Prête
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if commande.status.value == 'PRETE' %}
+                                        <form method="post" action="{{ path('app_serveur_commande_changer_statut', {id: commande.id, nouveauStatut: 'servie'}) }}" class="d-inline">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('statut' ~ commande.id) }}">
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-check-circle me-1"></i> Marquer comme Servie
+                                            </button>
+                                        </form>
+                                    {% endif %}
+
+                                    {% if commande.status.value == 'SERVIE' %}
+                                        <span class="text-success fw-bold">
+                                        <i class="fas fa-check-double me-1"></i> Commande servie
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info text-center py-5">
+                <i class="fas fa-check-circle fa-3x mb-3 text-info"></i>
+                <h4>Aucune commande en cours pour le moment.</h4>
+                <p>Les nouvelles commandes apparaîtront ici dès qu'elles seront prises.</p>
+            </div>
+        {% endif %}
+
+        <div class="text-center mt-5">
+            <a href="{{ path('app_serveur_dashboard') }}" class="btn btn-primary btn-lg">
+                <i class="fas fa-home me-2"></i> Retour au tableau de bord
+            </a>
+        </div>
+    </div>
+{% endblock %}
