@@ -51,21 +51,24 @@ class UserType extends AbstractType
                 'expanded' => true,   // boutons radio
                 'multiple' => false,
                 'label' => 'Rôle',
-                'data' => 'ROLE_USER' // rôle par défaut
+
             ]);
 
         // Transformer pour gérer le champ roles (qui est un tableau en BDD mais un string dans le formulaire)
         $builder->get('roles')
             ->addModelTransformer(new CallbackTransformer(
                 function ($rolesArray) {
-                    // De la base → formulaire : on prend le premier rôle
-                    return $rolesArray[0] ?? null;
+                    // retirer le ROLE_USER ajouté automatiquement par getRoles()
+                    $rolesArray = array_filter($rolesArray, fn($r) => $r !== 'ROLE_USER');
+
+                    // prendre uniquement le vrai rôle choisi
+                    return array_values($rolesArray)[0] ?? 'ROLE_USER';
                 },
                 function ($roleString) {
-                    // Du formulaire → base : on renvoie un tableau avec le rôle sélectionné
                     return [$roleString];
                 }
             ));
+
     }
 
     public function configureOptions(OptionsResolver $resolver): void

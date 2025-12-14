@@ -4,7 +4,22 @@
 
 {% block body %}
     <div class="container mt-5">
-        <h1 class="h2 mb-4 text-center text-success">Commander en ligne</h1>
+        <!-- Navigation personnalisée -->
+        <nav class="navbar navbar-light bg-light mb-4 shadow-sm">
+            <div class="container">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <div>
+                        <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                    <h1 class="h4 mb-0 text-success">Commander en ligne</h1>
+                    <div>
+                        <span class="text-muted">Bonjour {{ app.user.prenom }}</span>
+                    </div>
+                </div>
+            </div>
+        </nav>
 
         <div class="row row-cols-1 row-cols-md-3 g-4">
             {% for plat in plats|default([]) %}

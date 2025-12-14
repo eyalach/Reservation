@@ -4,37 +4,65 @@
 
 {% block body %}
     <div class="container mt-5">
-        <h1 class="h2 mb-4 text-center text-primary">Réserver une table</h1>
+        <!-- Navigation personnalisée -->
+        <nav class="navbar navbar-light bg-light mb-4 shadow-sm">
+            <div class="container">
+                <div class="d-flex justify-content-between w-100 align-items-center">
+                    <div>
+                        <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-left"></i> Retour
+                        </a>
+                    </div>
+                    <h1 class="h4 mb-0 text-success">Réserver une Table</h1>
 
+                </div>
+            </div>
+        </nav>
+    <div class="container mt-5">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow">
-                    <div class="card-body p-5">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0"><i class="bi bi-calendar-plus"></i> Réserver une table</h3>
+                    </div>
+                    <div class="card-body">
                         <form method="post" action="{{ path('app_client_reserver_table_post') }}">
                             <div class="mb-3">
-                                <label class="form-label">Date et heure</label>
-                                <input type="datetime-local" name="date_heure" class="form-control form-control-lg" required
-                                       min="{{ 'now'|date('Y-m-d\\TH:i') }}" value="{{ 'now + 1 hour'|date('Y-m-d\\TH:i') }}">
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Nombre de personnes</label>
-                                <select name="personnes" class="form-select form-select-lg" required>
-                                    {% for i in 1..10 %}
-                                        <option value="{{ i }}">{{ i }} personne{{ i > 1 ? 's' }}</option>
-                                    {% endfor %}
+                                <label for="personnes" class="form-label">Nombre de personnes *</label>
+                                <select class="form-select" id="personnes" name="personnes" required>
+                                    <option value="">Sélectionnez...</option>
+                                    <option value="1">1 personne</option>
+                                    <option value="2">2 personnes</option>
+                                    <option value="3">3 personnes</option>
+                                    <option value="4">4 personnes</option>
+                                    <option value="5">5 personnes</option>
+                                    <option value="6">6 personnes</option>
+                                    <option value="7">7 personnes</option>
+                                    <option value="8">8 personnes</option>
+                                    <option value="9">9 personnes</option>
+                                    <option value="10">10 personnes ou plus</option>
                                 </select>
                             </div>
 
-                            <div class="mb-4">
-                                <label class="form-label">Message (facultatif)</label>
-                                <textarea name="message" rows="3" class="form-control" placeholder="Ex: Anniversaire, table près de la fenêtre..."></textarea>
+                            <div class="mb-3">
+                                <label for="dateHeure" class="form-label">Date et heure *</label>
+                                <input type="datetime-local" class="form-control" id="dateHeure" name="dateHeure" required>
+                                <small class="text-muted">Sélectionnez la date et l'heure souhaitées</small>
                             </div>
 
-                            <div class="text-center">
-                                <button type="submit" class="btn btn-primary btn-lg px-5">
-                                    Confirmer la réservation
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Message (optionnel)</label>
+                                <textarea class="form-control" id="message" name="message" rows="3"
+                                          placeholder="Ex: Table près de la fenêtre, anniversaire, allergie alimentaire..."></textarea>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle"></i> Confirmer la réservation
                                 </button>
+                                <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Retour
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -42,4 +70,19 @@
             </div>
         </div>
     </div>
+    </div>
+
+
+    <script>
+        // Définir la date minimale (aujourd'hui)
+        const now = new Date();
+        const minDate = now.toISOString().slice(0, 16);
+        document.getElementById('dateHeure').min = minDate;
+
+        // Définir la date par défaut (demain à 19h)
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(19, 0, 0, 0);
+        document.getElementById('dateHeure').value = tomorrow.toISOString().slice(0, 16);
+    </script>
 {% endblock %}

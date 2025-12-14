@@ -1,48 +1,145 @@
 {# templates/client/historique.html.twig #}
 {% extends 'base.html.twig' %}
+
 {% block title %}Mon historique{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
+    <div class="mb-3">
+        <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <div class="container mt-4">
         <h1 class="h2 mb-5 text-center text-info">Mon historique</h1>
 
         <div class="row">
+            {# ===================== RÉSERVATIONS ===================== #}
             <div class="col-lg-6">
                 <div class="card shadow mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h4>Réservations</h4>
+                        <h4 class="mb-0">
+                            <i class="bi bi-calendar-check"></i> Mes réservations
+                        </h4>
                     </div>
+
                     <div class="card-body">
                         {% if reservations|length > 0 %}
                             {% for r in reservations %}
                                 <div class="border-bottom pb-3 mb-3">
-                                    <strong>{{ r.dateHeure|date('d/m/Y à H:i') }}</strong><br>
-                                    <small>{{ r.personnes }} personne{{ r.personnes > 1 ? 's' }}</small>
-                                    {% if r.message %}<br><em>"{{ r.message }}"</em>{% endif %}
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>{{ r.dateHeure|date('d/m/Y à H:i') }}</strong><br>
+                                            <small class="text-muted">
+                                                <i class="bi bi-people"></i>
+                                                {{ r.personnes }} personne{{ r.personnes > 1 ? 's' : '' }}
+                                            </small>
+
+                                            {% if r.message %}
+                                                <br>
+                                                <em class="text-muted">"{{ r.message }}"</em>
+                                            {% endif %}
+                                        </div>
+                                        <span class="badge bg-info">Réservée</span>
+                                    </div>
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <p class="text-muted">Aucune réservation pour le moment.</p>
+                            <div class="text-center py-3">
+                                <i class="bi bi-calendar-x text-muted fs-2"></i>
+                                <p class="text-muted mt-2">Aucune réservation pour le moment.</p>
+                                <a href="{{ path('app_client_reserver_table') }}"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-plus-circle"></i> Réserver une table
+                                </a>
+                            </div>
                         {% endif %}
                     </div>
                 </div>
             </div>
 
+            {# ===================== COMMANDES ===================== #}
             <div class="col-lg-6">
                 <div class="card shadow mb-4">
                     <div class="card-header bg-success text-white">
-                        <h4>Commandes en ligne</h4>
+                        <h4 class="mb-0">
+                            <i class="bi bi-bag-check"></i> Mes commandes
+                        </h4>
                     </div>
+
                     <div class="card-body">
                         {% if commandes|length > 0 %}
                             {% for c in commandes %}
                                 <div class="border-bottom pb-3 mb-3">
-                                    <strong>Commande #{{ c.id }} - {{ c.date|date('d/m/Y H:i') }}</strong><br>
-                                    <small class="text-success">{{ c.total }} DT - {{ c.modePaiement }}</small>
+
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <strong>Commande #{{ c.id }}</strong><br>
+                                            <small class="text-muted">
+                                                <i class="bi bi-clock"></i>
+                                                {{ c.date|date('d/m/Y H:i') }}
+                                            </small><br>
+                                            <small class="text-success">
+                                                <i class="bi bi-cash"></i>
+                                                {{ c.total|number_format(2) }} DT – {{ c.modePaiement }}
+                                            </small>
+                                        </div>
+
+                                        <div class="text-end">
+                                            <span class="badge
+                                                {% if c.status.value == 'en_cours' %}bg-warning
+                                                {% elseif c.status.value in ['livree', 'terminee'] %}bg-success
+                                                {% elseif c.status.value == 'annulee' %}bg-danger
+                                                {% else %}bg-secondary{% endif %}">
+                                                {{ c.status.value|replace({'_' : ' '})|title }}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    {# ===== DÉTAILS COMMANDE ===== #}
+                                    <div class="collapse" id="detailsCommande{{ c.id }}">
+                                        <hr>
+                                        <h6 class="mb-3">Détails :</h6>
+
+                                        <ul class="list-group list-group-flush">
+                                            {% for ligne in c.ligneCommandes %}
+                                                <li class="list-group-item d-flex justify-content-between px-0">
+                                                    <span>
+                                                        {{ ligne.quantite }} × {{ ligne.plat.nom }}
+                                                    </span>
+                                                    <span class="text-muted">
+                                                        {{ (ligne.prixUnitaire * ligne.quantite)|number_format(2) }} DT
+                                                    </span>
+                                                </li>
+                                            {% else %}
+                                                <li class="list-group-item text-muted">
+                                                    Aucun article
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+
+                                        <div class="text-end mt-3">
+                                            <strong>Total : {{ c.total|number_format(2) }} DT</strong>
+                                        </div>
+                                    </div>
+
+                                    {# ===== BOUTON DÉTAILS ===== #}
+                                    <div class="text-center mt-2">
+                                        <button class="btn btn-sm btn-outline-secondary"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#detailsCommande{{ c.id }}">
+                                            Voir les détails
+                                            <i class="bi bi-chevron-down"></i>
+                                        </button>
+                                    </div>
+
                                 </div>
                             {% endfor %}
                         {% else %}
-                            <p class="text-muted">Aucune commande passée.</p>
+                            <div class="text-center py-3">
+                                <i class="bi bi-cart-x text-muted fs-2"></i>
+                                <p class="text-muted mt-2">Aucune commande passée.</p>
+                            </div>
                         {% endif %}
                     </div>
                 </div>

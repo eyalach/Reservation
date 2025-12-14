@@ -133,17 +133,8 @@ class Commande
 
         return $this;
     }
-    #[ORM\OneToMany(mappedBy: 'commande', targetEntity: LigneCommande::class, cascade: ['persist', 'remove'])]
-    private Collection $lignes;
-    public function getLignes(): Collection { return $this->lignes; }
-    public function addLigne(LigneCommande $ligne): static
-    {
-        if (!$this->lignes->contains($ligne)) {
-            $this->lignes->add($ligne);
-            $ligne->setCommande($this);
-        }
-        return $this;
-    }
+
+
     #[ORM\Column(length: 50)]
     private string $modePaiement = 'Espèces';
 
