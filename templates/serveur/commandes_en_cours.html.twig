@@ -15,7 +15,11 @@
                             <div class="card-header {% if commande.status.value == 'EN_COURS' %}bg-warning text-dark{% elseif commande.status.value == 'PRETE' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}">
                                 <div class="d-flex justify-content-between align-items-center">
                                     <h5 class="mb-0">
-                                        Table {{ commande.tableCommande.numero }}
+                                        {% if commande.tableCommande is not null %}
+                                            Table {{ commande.tableCommande.numero }}
+                                        {% else %}
+                                            <span class="text-danger">Sans table</span>
+                                        {% endif %}
                                     </h5>
                                     <span class="badge bg-light text-dark fs-6">
                                     {{ commande.status.value }}

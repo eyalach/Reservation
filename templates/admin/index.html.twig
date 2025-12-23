@@ -1,64 +1,131 @@
-{# templates/admin/dashboard.html.twig #}
+{# templates/admin/index.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Admin - Tableau de bord{% endblock %}
+{% block title %}Administration - Tableau de bord{% endblock %}
 
 {% block body %}
-    {# Icône de déconnexion simple en haut à droite #}
-    <div class="position-fixed" style="top: 15px; right: 20px; z-index: 1050;">
-        <a href="{{ path('app_logout') }}"
-           class="btn btn-danger rounded-circle shadow-sm"
-           title="Se déconnecter"
-           data-bs-toggle="tooltip"
-           data-bs-placement="left">
-            <i class="fas fa-power-off"></i>
-        </a>
-    </div>
-    <div class="row text-center">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary p-4">
-                <h3>CA Jour<br><strong>1 245 DT</strong></h3>
+    <div class="container mt-4">
+        {# En-tête avec bouton déconnexion #}
+        <div class="d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom">
+            <div>
+                <h1 class="display-5 fw-bold text-dark">Tableau de Bord</h1>
+                <p class="text-muted">Bienvenue dans l'espace de gestion de votre restaurant</p>
+            </div>
+            <a href="{{ path('app_logout') }}" class="btn btn-outline-danger btn-lg shadow-sm">
+                <i class="fas fa-power-off me-2"></i>Déconnexion
+            </a>
+        </div>
+
+        {# Section des Statistiques Rapides #}
+        <div class="row text-center mb-5">
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                    <div class="card-body py-4">
+                        <i class="fas fa-cash-register fa-2x mb-2"></i>
+                        <h5 class="card-title text-uppercase small opacity-75">CA Aujourd'hui</h5>
+                        <p class="display-6 fw-bold">1 245 <small>DT</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm bg-success text-white h-100">
+                    <div class="card-body py-4">
+                        <i class="fas fa-shopping-basket fa-2x mb-2"></i>
+                        <h5 class="card-title text-uppercase small opacity-75">Commandes</h5>
+                        <p class="display-6 fw-bold">48</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+                    <div class="card-body py-4">
+                        <i class="fas fa-chair fa-2x mb-2"></i>
+                        <h5 class="card-title text-uppercase small opacity-75">Tables occupées</h5>
+                        <p class="display-6 fw-bold">12/20</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 mb-3">
+                <div class="card border-0 shadow-sm bg-danger text-white h-100">
+                    <div class="card-body py-4">
+                        <i class="fas fa-fire fa-2x mb-2"></i>
+                        <h5 class="card-title text-uppercase small opacity-75">En cuisine</h5>
+                        <p class="display-6 fw-bold">7</p>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success p-4">
-                <h3>Commandes<br><strong>48</strong></h3>
+
+        {# Section des Actions de Gestion #}
+        <h2 class="h4 mb-4 text-secondary"><i class="fas fa-tools me-2"></i>Raccourcis de Gestion</h2>
+
+        <div class="row g-4">
+            {# Gestion des Plats #}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm hover-shadow border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-light rounded-circle p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-utensils fa-2x text-secondary"></i>
+                        </div>
+                        <h4>Plats</h4>
+                        <p class="text-muted small">Ajoutez, modifiez ou supprimez les plats de votre carte.</p>
+                        <a href="{{ path('app_admin_plats') }}" class="btn btn-secondary w-100">Gérer les plats</a>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-warning p-4">
-                <h3>Tables occupées<br><strong>12/20</strong></h3>
+
+            {# Gestion des Catégories #}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm hover-shadow border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-light rounded-circle p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-tags fa-2x text-dark"></i>
+                        </div>
+                        <h4>Catégories</h4>
+                        <p class="text-muted small">Organisez vos plats par catégories (Entrées, Desserts...).</p>
+                        <a href="{{ path('app_admin_categories') }}" class="btn btn-dark w-100">Gérer les catégories</a>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-danger p-4">
-                <h3>En attente cuisine<br><strong>7</strong></h3>
+
+            {# Gestion des Utilisateurs #}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm hover-shadow border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-light rounded-circle p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-users-cog fa-2x text-warning"></i>
+                        </div>
+                        <h4>Utilisateurs</h4>
+                        <p class="text-muted small">Gérez les comptes du personnel (Admin, Serveur, Cuisine).</p>
+                        <a href="{{ path('app_admin_utilisateurs') }}" class="btn btn-warning w-100">Gérer les membres</a>
+                    </div>
+                </div>
+            </div>
+
+            {# Statistiques détaillées #}
+            <div class="col-md-4">
+                <div class="card h-100 shadow-sm hover-shadow border-0">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-light rounded-circle p-3 mx-auto mb-3" style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-chart-line fa-2x text-success"></i>
+                        </div>
+                        <h4>Performances</h4>
+                        <p class="text-muted small">Consultez l'historique des ventes et les statistiques.</p>
+                        <a href="{{ path('app_admin_statistiques') }}" class="btn btn-success w-100">Voir les stats</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <h2 class="mt-5">Raccourcis</h2>
-
-    <div class="row mt-3">
-        <div class="col-md-4 mb-3">
-            <a href="{{ path('app_admin_plats') }}" class="btn btn-lg btn-secondary w-100">
-                Gérer les plats
-            </a>
-        </div>
-        <div class="col-md-4 mb-3">
-            <a href="{{ path('app_admin_table_index') }}" class="btn btn-lg btn-info w-100 text-white">
-                Gérer les tables
-            </a>
-        </div>
-        <div class="col-md-4 mb-3">
-            <a href="{{ path('app_admin_statistiques') }}" class="btn btn-lg btn-success w-100">
-                Statistiques
-            </a>
-        </div>
-        <div class="col-md-4 mb-3">
-            <a href="{{ path('app_admin_utilisateurs') }}" class="btn btn-lg btn-warning w-100">
-                Gérer les utilisateurs
-            </a>
-        </div>
-    </div>
+    <style>
+        /* Effet de survol sur les cartes */
+        .hover-shadow {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hover-shadow:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+        }
+    </style>
 {% endblock %}

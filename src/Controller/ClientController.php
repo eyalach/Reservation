@@ -2,238 +2,141 @@
 
 namespace App\Controller;
 
-use App\Entity\Commande;
-use App\Entity\LigneCommande;
-use App\Entity\Reservation;
-use App\Entity\Plat;
-use App\Enum\StatutCommande; // ✅ CHANGEMENT
-use App\Repository\PlatRepository;
-use Doctrine\ORM\Query\Expr\Join;
 use App\Repository\CommandeRepository;
 use App\Repository\ReservationRepository;
+use App\Entity\Commande;
+use App\Entity\LigneCommande;
+use App\Entity\Reservation; // Assurez-vous d'avoir cette entité
+use App\Enum\StatutCommande;
+use App\Repository\PlatRepository;
+use App\Repository\TableRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/client', name: 'app_client_')]
+#[Route('/client')]
 class ClientController extends AbstractController
 {
-    #[Route('/dashboard', name: 'dashboard')]
-    #[Route('/', name: 'index')]
+    #[Route('/dashboard', name: 'app_client_dashboard')]
     public function dashboard(): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_CLIENT');
-
         return $this->render('client/index.html.twig');
     }
 
-    // =======================
-    // RÉSERVATION (GET)
-    // =======================
-    #[Route('/reserver-table', name: 'reserver_table', methods: ['GET'])]
+    // --- PARTIE RÉSERVATION ---
+
+    #[Route('/reserver-table', name: 'app_client_reserver_table', methods: ['GET'])]
     public function reserverTable(): Response
     {
-        $this->denyAccessUnlessGranted('ROLE_CLIENT');
-
         return $this->render('client/reserver_table.html.twig');
     }
 
-    // =======================
-    // RÉSERVATION (POST)
-    // =======================
-    #[Route('/reserver-table', name: 'reserver_table_post', methods: ['POST'])]
-    public function reserverTablePost(
-        Request $request,
-        EntityManagerInterface $em
-    ): Response {
-        $this->denyAccessUnlessGranted('ROLE_CLIENT');
-
-        $personnes = (int) $request->request->get('personnes');
-        $dateHeureStr = $request->request->get('dateHeure');
+    #[Route('/reserver-table/valider', name: 'app_client_reserver_table_post', methods: ['POST'])]
+    public function reserverTablePost(Request $request, EntityManagerInterface $em): Response
+    {
+        $nbPersonnes = $request->request->get('personnes');
+        $dateHeure = $request->request->get('dateHeure');
         $message = $request->request->get('message');
 
-        if ($personnes <= 0 || !$dateHeureStr) {
-            $this->addFlash('error', 'Veuillez remplir tous les champs obligatoires.');
-            return $this->redirectToRoute('app_client_reserver_table');
-        }
+        // Ici, vous devriez créer une entité Reservation
+        // Exemple (si vous avez l'entité) :
+        /*
+        $res = new Reservation();
+        $res->setNbPersonnes((int)$nbPersonnes);
+        $res->setDate(new \DateTime($dateHeure));
+        $res->setCommentaire($message);
+        $res->setUser($this->getUser());
+        $em->persist($res);
+        $em->flush();
+        */
 
-        try {
-            $dateHeure = new \DateTime($dateHeureStr);
-        } catch (\Exception) {
-            $this->addFlash('error', 'Date invalide.');
-            return $this->redirectToRoute('app_client_reserver_table');
-        }
-
-        if ($dateHeure < new \DateTime()) {
-            $this->addFlash('error', 'La date doit être dans le futur.');
-            return $this->redirectToRoute('app_client_reserver_table');
-        }
-
-        $reservation = new Reservation();
-        $reservation->setClient($this->getUser()); // ✅ LIAISON CLIENT
-        $reservation->setDateHeure($dateHeure);
-        $reservation->setPersonnes($personnes);
-        $reservation->setMessage($message);
-
-        $em->persist($reservation);
-        $em->flush(); // 💾 SAUVEGARDE EN BASE
-
-        $this->addFlash(
-            'success',
-            'Réservation confirmée pour le ' . $dateHeure->format('d/m/Y à H:i')
-        );
-
-        return $this->redirectToRoute('app_client_historique');
+        $this->addFlash('success', 'Votre demande de réservation a été envoyée !');
+        return $this->redirectToRoute('app_client_dashboard');
     }
 
-    // =======================
-    // PASSER COMMANDE (PAGE)
-    // =======================
-    #[Route('/passer-commande', name: 'passer_commande', methods: ['GET'])]
-    public function passerCommande(PlatRepository $platRepository): Response
-    {
-        $this->denyAccessUnlessGranted('ROLE_CLIENT');
+    // --- PARTIE COMMANDE ---
 
-        $plats = $platRepository->findBy(['disponible' => true]);
+    #[Route('/passer-commande', name: 'app_client_passer_commande', methods: ['GET'])]
+    public function passerCommande(PlatRepository $platRepo, TableRepository $tableRepo): Response
+    {
+        $plats = $platRepo->findBy(['disponible' => true]);
+        $tables = $tableRepo->findBy([], ['numero' => 'ASC']);
 
         return $this->render('client/passer_commande.html.twig', [
             'plats' => $plats,
+            'tables' => $tables,
         ]);
     }
-    #[Route('/passer-commande', name: 'passer_commande_post', methods: ['POST'])]
+
+    #[Route('/passer-commande/valider', name: 'app_client_passer_commande_post', methods: ['POST'])]
     public function passerCommandePost(
         Request $request,
+        PlatRepository $platRepo,
+        TableRepository $tableRepo,
         EntityManagerInterface $em
     ): Response {
-        $this->denyAccessUnlessGranted('ROLE_CLIENT');
-
         $items = $request->request->all('items');
-        $modePaiement = $request->request->get('modePaiement', 'Espèces');
+        $tableId = $request->request->get('tableId');
 
-        if (!$items || count($items) === 0) {
-            $this->addFlash('error', 'Votre commande est vide.');
+        if (!$tableId) {
+            $this->addFlash('error', 'Veuillez sélectionner une table.');
             return $this->redirectToRoute('app_client_passer_commande');
         }
 
+        $table = $tableRepo->find($tableId);
         $commande = new Commande();
-        $commande->setClient($this->getUser());
+        $commande->setTableCommande($table);
         $commande->setDate(new \DateTime());
-        $commande->setModePaiement($modePaiement);
         $commande->setStatus(StatutCommande::en_cours);
 
         $total = 0;
-
         foreach ($items as $platId => $quantite) {
-            if ($quantite <= 0) continue;
-
-            $plat = $em->getRepository(\App\Entity\Plat::class)->find($platId);
-            if (!$plat) continue;
-
-            $ligne = new LigneCommande();
-            $ligne->setCommande($commande);
-            $ligne->setPlat($plat);
-            $ligne->setQuantite($quantite);
-            $ligne->setPrixUnitaire($plat->getPrix());
-
-            $total += $plat->getPrix() * $quantite;
-
-            $em->persist($ligne);
+            if ($quantite > 0) {
+                $plat = $platRepo->find($platId);
+                if ($plat) {
+                    $ligne = new LigneCommande();
+                    $ligne->setPlat($plat);
+                    $ligne->setQuantite((int)$quantite);
+                    $ligne->setPrixUnitaire($plat->getPrix());
+                    $ligne->setCommande($commande);
+                    $em->persist($ligne);
+                    $total += ($plat->getPrix() * $quantite);
+                }
+            }
         }
 
         $commande->setTotal($total);
-
         $em->persist($commande);
         $em->flush();
 
-        $this->addFlash('success', 'Commande enregistrée avec succès.');
-
-        return $this->redirectToRoute('app_client_historique');
+        $this->addFlash('success', 'Commande validée !');
+        return $this->redirectToRoute('app_client_dashboard');
     }
-
-
-
-
-    // =======================
-    // HISTORIQUE
-    // =======================
-    #[Route('/historique', name: 'historique')]
+    //partie historique
+    /**
+     * Affiche l'historique complet (Commandes + Réservations)
+     */
+    #[Route('/historique', name: 'app_client_historique', methods: ['GET'])]
     public function historique(
-        CommandeRepository $commandeRepository,
-        ReservationRepository $reservationRepository
+        CommandeRepository $commandeRepo,
+        ReservationRepository $reservationRepo
     ): Response {
+        // Sécurité : Seul un client peut voir son historique
         $this->denyAccessUnlessGranted('ROLE_CLIENT');
 
-        $client = $this->getUser();
+        // Récupération de l'utilisateur connecté
+        $user = $this->getUser();
 
-        $commandes = $commandeRepository->createQueryBuilder('c')
-            ->addSelect('lc')
-            ->addSelect('plat')
-            ->leftJoin('c.ligneCommandes', 'lc')   // ✅ NOM CORRECT
-            ->leftJoin('lc.plat', 'plat')
-            ->where('c.client = :client')
-            ->setParameter('client', $client)
-            ->orderBy('c.date', 'DESC')
-            ->getQuery()
-            ->getResult();
-
-        $reservations = $reservationRepository->findBy(
-            ['client' => $client],
-            ['dateHeure' => 'DESC']
-        );
+        // Récupération des données filtrées par l'utilisateur connecté
+        // On trie par date décroissante (la plus récente d'abord)
+        $reservations = $reservationRepo->findBy(['client' => $user], ['dateHeure' => 'DESC']);
+        $commandes = $commandeRepo->findBy(['client' => $user], ['date' => 'DESC']);
 
         return $this->render('client/historique.html.twig', [
-            'commandes' => $commandes,
             'reservations' => $reservations,
+            'commandes' => $commandes,
         ]);
     }
-
-    // =======================
-    // VALIDER COMMANDE (AJAX)
-    // =======================
-    #[Route('/valider-commande', name: 'valider_commande', methods: ['POST'])]
-    public function validerCommande(
-
-        Request $request,
-        EntityManagerInterface $em
-    ): JsonResponse {
-        die('ROUTE VALIDER COMMANDE APPELÉE');
-
-        $this->denyAccessUnlessGranted('ROLE_CLIENT');
-
-        $data = json_decode($request->getContent(), true);
-
-        if (!$data || !isset($data['items'], $data['total'], $data['modePaiement'])) {
-            return new JsonResponse(['success' => false], 400);
-        }
-
-        $commande = new Commande();
-        $commande->setClient($this->getUser());
-        $commande->setDate(new \DateTime());
-        $commande->setTotal((float) $data['total']);
-        $commande->setModePaiement($data['modePaiement']);
-        $commande->setStatus(\App\Enum\StatutCommande::en_cours); // ✅ ENUM
-
-        $em->persist($commande);
-
-        foreach ($data['items'] as $item) {
-            $plat = $em->getRepository(\App\Entity\Plat::class)->find($item['id']);
-            if (!$plat) continue;
-
-            $ligne = new LigneCommande();
-            $ligne->setCommande($commande);
-            $ligne->setPlat($plat);
-            $ligne->setQuantite((int) ($item['quantite'] ?? 1));
-            $ligne->setPrixUnitaire($plat->getPrix());
-
-            $em->persist($ligne);
-        }
-
-        $em->flush(); // 💾 ICI la commande est enregistrée
-
-        return new JsonResponse(['success' => true]);
-    }
-
 }

@@ -1,193 +1,194 @@
-{# templates/client/passer_commande.html.twig #}
 {% extends 'base.html.twig' %}
-{% block title %}Commander en ligne{% endblock %}
+
+{% block title %}Passer une commande{% endblock %}
 
 {% block body %}
     <div class="container mt-5">
-        <!-- Navigation personnalisée -->
-        <nav class="navbar navbar-light bg-light mb-4 shadow-sm">
-            <div class="container">
-                <div class="d-flex justify-content-between w-100 align-items-center">
-                    <div>
-                        <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-left"></i> Retour
-                        </a>
-                    </div>
-                    <h1 class="h4 mb-0 text-success">Commander en ligne</h1>
-                    <div>
-                        <span class="text-muted">Bonjour {{ app.user.prenom }}</span>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <h1 class="mb-4 text-center">Notre Menu</h1>
 
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            {% for plat in plats|default([]) %}
-                <div class="col">
-                    <div class="card h-100 shadow-sm hover-shadow transition">
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ plat.nom }}</h5>
-                            <p class="card-text text-muted flex-grow-1">
-                                {{ plat.description|default('Délicieux plat maison') }}
-                            </p>
-                            <div class="mt-auto">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <strong class="text-success fs-3">{{ plat.prix }} DT</strong>
-                                    <button class="btn btn-success btn-lg ajouter-panier"
-                                            data-id="{{ plat.id }}"
-                                            data-nom="{{ plat.nom }}"
-                                            data-prix="{{ plat.prix }}">
-                                        Ajouter
-                                    </button>
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+
+        {% if plats|length == 0 %}
+            <div class="alert alert-warning">
+                Aucun plat disponible pour le moment.
+            </div>
+        {% else %}
+            {# --- LOGIQUE DE REGROUPEMENT PAR CATEGORIE --- #}
+            {% set platsParCategorie = {} %}
+            {% for plat in plats %}
+                {% set nomCat = plat.categorie ? plat.categorie.nom : "Autres" %}
+                {% if platsParCategorie[nomCat] is not defined %}
+                    {% set platsParCategorie = platsParCategorie|merge({(nomCat): []}) %}
+                {% endif %}
+                {% set platsParCategorie = platsParCategorie|merge({(nomCat): platsParCategorie[nomCat]|merge([plat])}) %}
+            {% endfor %}
+
+            <form id="commandeForm" method="POST" action="{{ path('app_client_passer_commande_post') }}">
+
+                {% for nomCat, platsDansCat in platsParCategorie %}
+                    <h3 class="mt-5 mb-3 pb-2 border-bottom text-primary">
+                        <i class="fas fa-utensils me-2"></i>{{ nomCat }}
+                    </h3>
+
+                    <div class="row">
+                        {% for plat in platsDansCat %}
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between">
+                                            <h5 class="card-title">{{ plat.nom }}</h5>
+                                            <span class="badge bg-light text-primary border">{{ plat.prix }} DT</span>
+                                        </div>
+                                        <p class="card-text text-muted small mt-2">{{ plat.description }}</p>
+
+                                        <div class="input-group mt-3">
+                                            <label for="quantity_{{ plat.id }}" class="input-group-text bg-white">Quantité</label>
+                                            <input
+                                                type="number"
+                                                class="form-control quantity-input"
+                                                id="quantity_{{ plat.id }}"
+                                                name="items[{{ plat.id }}]"
+                                                min="0"
+                                                max="50"
+                                                value="0"
+                                                data-prix="{{ plat.prix }}"
+                                                data-nom="{{ plat.nom }}"
+                                            >
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        {% endfor %}
                     </div>
-                </div>
-            {% else %}
-                <div class="col-12 text-center py-5">
-                    <p class="text-muted fs-4">Aucun plat disponible pour le moment.</p>
-                </div>
-            {% endfor %}
-        </div>
+                {% endfor %}
 
-        <!-- Bouton Panier -->
-        <div class="text-center mt-5">
-            <button class="btn btn-warning btn-lg position-relative shadow-lg" data-bs-toggle="modal" data-bs-target="#panierModal">
-                Voir mon panier
-                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger panier-count">
-                0
-            </span>
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL PANIER + PAIEMENT -->
-    <div class="modal fade" id="panierModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">Mon Panier</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="panier-contenu">
-                    <p class="text-center text-muted">Votre panier est vide</p>
-                </div>
-                <div class="modal-footer d-flex justify-content-between align-items-center border-top pt-3">
-                    <div>
-                        <strong class="fs-4 text-success">Total : <span id="total-prix">0.00</span> DT</strong>
+                <div class="card mt-5 mb-5 shadow border-primary">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h4 class="mb-0"><i class="fas fa-shopping-cart me-2"></i>Récapitulatif de la commande</h4>
                     </div>
-                    <div>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Continuer mes achats</button>
-                        <button type="button" class="btn btn-success btn-lg" id="valider-commande" {% if panier is defined and panier is empty %}disabled{% endif %}>
-                            Valider la commande
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+                    <div class="card-body">
+                        <div id="recapitulatif">
+                            <p class="text-muted">Sélectionnez des plats pour voir le récapitulatif</p>
+                        </div>
 
-    <!-- MODAL PAIEMENT (apparaît après validation) -->
-    <div class="modal fade" id="paiementModal" tabindex="-1">
-        <div class="modal-dialog modal-md">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Choisir le mode de paiement</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center">
-                    <div class="row g-4">
-                        <div class="col-12">
-                            <button class="btn btn-outline-success btn-lg w-100 p-4" onclick="confirmerPaiement('Espèces à la livraison')">
-                                Espèces à la livraison
-                            </button>
+                        <hr>
+
+                        <div class="row g-3">
+                            <!-- NOUVEAU : SELECTION DE LA TABLE -->
+                            <div class="col-md-4">
+                                <label for="tableId" class="form-label fw-bold">Votre Table</label>
+                                <select class="form-select form-select-lg border-primary" id="tableId" name="tableId" required>
+                                    <option value="" selected disabled>Choisir la table...</option>
+                                    {% for table in tables %}
+                                        <option value="{{ table.id }}">
+                                            Table n°{{ table.numero }} ({{ table.nbPlaces }} pl.) {{ not table.estLibre ? '- Occupée' : '' }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label for="modePaiement" class="form-label fw-bold">Mode de paiement</label>
+                                <select class="form-select form-select-lg" id="modePaiement" name="modePaiement" required>
+                                    <option value="Espèces">Espèces</option>
+                                    <option value="Carte bancaire">Carte bancaire</option>
+                                    <option value="Chèque">Chèque</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-4 text-end">
+                                <h5 class="mb-0">Total à payer :</h5>
+                                <div id="totalCommande" class="display-6 text-success fw-bold">0.00 DT</div>
+                            </div>
                         </div>
-                        <div class="col-12">
-                            <button class="btn btn-outline-primary btn-lg w-100 p-4" onclick="confirmerPaiement('Carte bancaire')">
-                                Carte bancaire
-                            </button>
-                        </div>
-                        <div class="col-12">
-                            <button class="btn btn-outline-info btn-lg w-100 p-4" onclick="confirmerPaiement('Flouci / D17')">
-                                Flouci / D17
+
+                        <div class="mt-4 d-grid gap-2">
+                            <button type="submit" class="btn btn-success btn-lg py-3 shadow" id="btnValider">
+                                <i class="fas fa-check-circle me-2"></i> Confirmer ma commande
                             </button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+            </form>
+        {% endif %}
+
+        <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-primary mb-5">
+            <i class="fas fa-arrow-left"></i> Retour
+        </a>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let panier = JSON.parse(localStorage.getItem('panier') || '[]');
-            mettreAJourPanier();
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('commandeForm');
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            const recapitulatif = document.getElementById('recapitulatif');
+            const totalElement = document.getElementById('totalCommande');
+            const btnValider = document.getElementById('btnValider');
 
-            document.querySelectorAll('.ajouter-panier').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const item = {
-                        id: btn.dataset.id,
-                        nom: btn.dataset.nom,
-                        prix: parseFloat(btn.dataset.prix)
-                    };
-                    panier.push(item);
-                    localStorage.setItem('panier', JSON.stringify(panier));
-                    mettreAJourPanier();
-                    alert(`${item.nom} ajouté au panier !`);
+            function updateRecapitulatif() {
+                let total = 0;
+                let items = [];
+
+                quantityInputs.forEach(input => {
+                    const quantity = parseInt(input.value) || 0;
+                    if (quantity > 0) {
+                        const prix = parseFloat(input.dataset.prix);
+                        const nom = input.dataset.nom;
+                        const sousTotal = prix * quantity;
+                        total += sousTotal;
+
+                        items.push({ nom: nom, quantity: quantity, prix: prix, sousTotal: sousTotal });
+                    }
                 });
-            });
 
-            function mettreAJourPanier() {
-                const count = panier.length;
-                document.querySelectorAll('.panier-count').forEach(el => el.textContent = count);
-
-                const total = panier.reduce((sum, item) => sum + item.prix, 0).toFixed(2);
-
-                const contenu = count === 0
-                    ? '<p class="text-center text-muted fs-5">Votre panier est vide</p>'
-                    : panier.map((p, i) => `
-                <div class="d-flex justify-content-between align-items-center border-bottom pb-3 mb-3">
-                    <div>
-                        <strong>${p.nom}</strong><br>
-                        <small class="text-muted">1 × ${p.prix} DT</small>
-                    </div>
-                    <strong>${p.prix.toFixed(2)} DT</strong>
-                    <button class="btn btn-sm btn-danger ms-3" onclick="supprimerDuPanier(${i})">Supprimer</button>
-                </div>
-            `).join('');
-
-                document.getElementById('panier-contenu').innerHTML = contenu;
-                document.getElementById('total-prix').textContent = total;
+                if (items.length === 0) {
+                    recapitulatif.innerHTML = '<p class="text-muted">Sélectionnez des plats pour voir le récapitulatif</p>';
+                    btnValider.disabled = true;
+                } else {
+                    let html = '<table class="table table-sm table-borderless"><thead><tr class="text-muted small"><th>Plat</th><th>Qté</th><th class="text-end">Sous-total</th></tr></thead><tbody>';
+                    items.forEach(item => {
+                        html += `<tr><td>${item.nom}</td><td>x ${item.quantity}</td><td class="text-end fw-bold">${item.sousTotal.toFixed(2)} DT</td></tr>`;
+                    });
+                    html += '</tbody></table>';
+                    recapitulatif.innerHTML = html;
+                    btnValider.disabled = false;
+                }
+                totalElement.textContent = total.toFixed(2) + ' DT';
             }
 
-            window.supprimerDuPanier = function(index) {
-                panier.splice(index, 1);
-                localStorage.setItem('panier', JSON.stringify(panier));
-                mettreAJourPanier();
-            };
-
-            document.getElementById('valider-commande').addEventListener('click', () => {
-                if (panier.length > 0) {
-                    const total = panier.reduce((s, i) => s + i.prix, 0).toFixed(2);
-                    if (confirm(`Confirmer la commande de ${total} DT ?`)) {
-                        document.querySelector('#panierModal .btn-close').click();
-                        const paiementModal = new bootstrap.Modal(document.getElementById('paiementModal'));
-                        paiementModal.show();
-                    }
-                }
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', updateRecapitulatif);
             });
+
+            form.addEventListener('submit', function(e) {
+                const tableSelect = document.getElementById('tableId');
+                if (!tableSelect.value) {
+                    e.preventDefault();
+                    alert('Veuillez sélectionner une table.');
+                    return;
+                }
+
+                let hasItems = false;
+                quantityInputs.forEach(input => {
+                    if (parseInt(input.value) > 0) { hasItems = true; }
+                });
+
+                if (!hasItems) {
+                    e.preventDefault();
+                    alert('Veuillez sélectionner au moins un plat.');
+                    return;
+                }
+
+                btnValider.disabled = true;
+                btnValider.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Envoi...';
+            });
+
+            updateRecapitulatif();
         });
-
-        function confirmerPaiement(mode) {
-            alert(`Commande validée !\nTotal: ${document.getElementById('total-prix').textContent} DT\nPaiement: ${mode}\nMerci pour votre confiance !`);
-            localStorage.removeItem('panier');
-            location.reload();
-        }
     </script>
-
-    <style>
-        .hover-shadow:hover { box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important; transition: all 0.3s; }
-        .transition { transition: all 0.3s ease; }
-    </style>
 {% endblock %}

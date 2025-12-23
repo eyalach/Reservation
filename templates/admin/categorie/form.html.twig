@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ editMode ? 'Modifier' : 'Ajouter' }} une catégorie{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>{{ editMode ? 'Modifier la catégorie' : 'Créer une catégorie' }}</h1>
+
+        <div class="card p-4 shadow-sm">
+            {{ form_start(form) }}
+            {{ form_row(form.nom, {'attr': {'class': 'form-control', 'placeholder': 'Ex: Entrées, Desserts...'}}) }}
+
+            <button type="submit" class="btn btn-success mt-3">
+                {{ editMode ? 'Mettre à jour' : 'Enregistrer' }}
+            </button>
+            <a href="{{ path('app_admin_categories') }}" class="btn btn-secondary mt-3">Retour</a>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

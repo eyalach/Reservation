@@ -33,6 +33,10 @@ class Plat
     #[ORM\OneToMany(targetEntity: LigneCommande::class, mappedBy: 'plat')]
     private Collection $ligneCommandes;
 
+    #[ORM\ManyToOne(inversedBy: 'plats')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Categorie $categorie = null;
+
     public function __construct()
     {
         $this->ligneCommandes = new ArrayCollection();
@@ -120,4 +124,17 @@ class Plat
 
         return $this;
     }
+
+    public function getCategorie(): ?Categorie
+    {
+        return $this->categorie;
+    }
+
+    public function setCategorie(?Categorie $categorie): static
+    {
+        $this->categorie = $categorie;
+
+        return $this;
+    }
 }
+

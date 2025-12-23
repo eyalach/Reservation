@@ -21,12 +21,30 @@
             </div>
         </div>
 
-        <h2 class="text-center mb-4">Que souhaitez-vous faire ?</h2>
+        {# templates/client/index.html.twig #}
 
+        <h2 class="text-center mb-4">Que souhaitez-vous faire ?</h2>
         <div class="row mt-4">
-            <div class="col-md-4"><a href="{{ path('app_client_reserver_table') }}" class="btn btn-primary btn-lg w-100 p-5">Réserver une table</a></div>
-            <div class="col-md-4"><a href="{{ path('app_client_passer_commande_post') }}" class="btn btn-success btn-lg w-100 p-5">Commander en ligne</a></div>
-            <div class="col-md-4"><a href="{{ path('app_client_historique') }}" class="btn btn-info btn-lg w-100 p-5 text-white">Mon historique</a></div>
+            <div class="col-md-4">
+                {# Lien vers le formulaire de réservation #}
+                <a href="{{ path('app_client_reserver_table') }}" class="btn btn-primary btn-lg w-100 p-5">
+                    <i class="bi bi-calendar-check d-block mb-2 fs-1"></i> Réserver une table
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                {# ATTENTION : On pointe vers 'app_client_passer_commande' (GET) et non '_post' #}
+                <a href="{{ path('app_client_passer_commande') }}" class="btn btn-success btn-lg w-100 p-5">
+                    <i class="bi bi-cart d-block mb-2 fs-1"></i> Commander en ligne
+                </a>
+            </div>
+
+            <div class="col-md-4">
+                {# Assurez-vous que cette route existe ou laissez '#' pour le moment #}
+                <a href="{{ path('app_client_historique') }}" class="btn btn-info btn-lg w-100 p-5 text-white">
+                    <i class="bi bi-clock-history d-block mb-2 fs-1"></i> Mon historique
+                </a>
+            </div>
         </div>
     </div>
 {% endblock %}
