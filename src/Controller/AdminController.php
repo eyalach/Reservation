@@ -13,28 +13,62 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route; // Correction de l'import
+use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\UserRepository;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use App\Entity\User;
 use App\Form\UserType;
+use App\Entity\Table;
+use App\Form\TableType;
+use App\Repository\TableRepository;
 
-#[Route('/admin', name: 'app_admin_')] // <--- AJOUT DU PRÉFIXE DE NOM ICI
+#[Route('/admin', name: 'app_admin_')]
 class AdminController extends AbstractController
 {
-    #[Route('/dashboard', name: 'dashboard')] // Deviendra 'app_admin_dashboard'
+    #[Route('/dashboard', name: 'dashboard')]
     public function dashboard(): Response
     {
         return $this->render('admin/index.html.twig');
     }
 
     // ==================== LISTE DES PLATS ====================
-    #[Route('/plats', name: 'plats')] // Deviendra 'app_admin_plats'
+    #[Route('/plats', name: 'plats')]
     public function plats(PlatRepository $repo): Response
     {
+        // Récupération de tous les plats triés par nom
         $plats = $repo->findBy([], ['nom' => 'ASC']);
+
+        // Regroupement par catégorie
+        $platsParCategorie = [];
+        foreach ($plats as $plat) {
+            $nomCat = $plat->getCategorie() ? $plat->getCategorie()->getNom() : 'Sans catégorie';
+            $platsParCategorie[$nomCat][] = $plat;
+        }
+
+        // Ordre fixe des catégories (celles que tu veux afficher en premier)
+        $ordreCategories = [
+            "Entrées / Antipasti",
+            "Pâtes et Plats Principaux",
+            "Pizzas (classiques)",
+            "Desserts",
+            "Boissons"
+        ];
+
+        // Création du tableau ordonné (catégories dans l'ordre voulu, même si vides)
+        $platsParCategorieOrdonnes = [];
+        foreach ($ordreCategories as $cat) {
+            $platsParCategorieOrdonnes[$cat] = $platsParCategorie[$cat] ?? [];
+        }
+
+        // Ajout des autres catégories éventuelles à la fin
+        foreach ($platsParCategorie as $cat => $liste) {
+            if (!in_array($cat, $ordreCategories)) {
+                $platsParCategorieOrdonnes[$cat] = $liste;
+            }
+        }
+
         return $this->render('admin/plats.html.twig', [
-            'plats' => $plats,
+            'platsParCategorie' => $platsParCategorieOrdonnes,
         ]);
     }
 
@@ -85,6 +119,7 @@ class AdminController extends AbstractController
             $em->flush();
             $this->addFlash('danger', 'Plat supprimé.');
         }
+
         return $this->redirectToRoute('app_admin_plats');
     }
 
@@ -93,6 +128,7 @@ class AdminController extends AbstractController
     {
         return $this->render('admin/statistiques.html.twig');
     }
+    // ==================== LISTE DES utilisateurs====================
 
     #[Route('/utilisateurs', name: 'utilisateurs')]
     public function utilisateurs(UserRepository $repo): Response
@@ -119,6 +155,47 @@ class AdminController extends AbstractController
             return $this->redirectToRoute('app_admin_utilisateurs');
         }
         return $this->render('admin/utilisateur_form.html.twig', ['form' => $form->createView()]);
+    }
+    #[Route('/utilisateur/{id}/modifier', name: 'modifier_utilisateur')]
+    public function modifierUtilisateur(User $user, Request $request, EntityManagerInterface $em, UserPasswordHasherInterface $hasher): Response
+    {
+        // On utilise le même formulaire UserType
+        $form = $this->createForm(UserType::class, $user);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            // Gestion du mot de passe si rempli
+            $plainPassword = $form->get('plainPassword')->getData();
+            if ($plainPassword) {
+                $user->setPassword($hasher->hashPassword($user, $plainPassword));
+            }
+
+            $em->flush();
+            $this->addFlash('success', 'Utilisateur mis à jour avec succès !');
+            return $this->redirectToRoute('app_admin_utilisateurs');
+        }
+
+        return $this->render('admin/utilisateur_form.html.twig', [
+            'form' => $form->createView(),
+            'editMode' => true,
+            'user' => $user
+        ]);
+    }
+
+    #[Route('/utilisateur/{id}/supprimer', name: 'supprimer_utilisateur', methods: ['POST'])]
+    public function supprimerUtilisateur(User $user, Request $request, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $user->getId(), $request->request->get('_token'))) {
+            // Sécurité : éviter de se supprimer soi-même
+            if ($user === $this->getUser()) {
+                $this->addFlash('danger', 'Action impossible : suppression de votre propre compte.');
+            } else {
+                $em->remove($user);
+                $em->flush();
+                $this->addFlash('danger', 'Utilisateur supprimé.');
+            }
+        }
+        return $this->redirectToRoute('app_admin_utilisateurs');
     }
 
     // ==================== CATEGORIES ====================
@@ -149,5 +226,66 @@ class AdminController extends AbstractController
             'form' => $form->createView(),
             'editMode' => $categorie->getId() !== null
         ]);
+    }
+    // ==================== GESTION DES TABLES ====================
+
+    #[Route('/tables', name: 'table_index')]
+    public function tables(TableRepository $repo): Response
+    {
+        return $this->render('admin/tables.html.twig', [
+            'tables' => $repo->findAll(),
+        ]);
+    }
+
+    #[Route('/table/new', name: 'table_new')]
+    public function newTable(Request $request, EntityManagerInterface $em): Response
+    {
+        $table = new Table();
+        $table->setEstlibre(true); // Par défaut libre
+
+        $form = $this->createForm(TableType::class, $table);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($table);
+            $em->flush();
+
+            $this->addFlash('success', 'La table a été créée.');
+            return $this->redirectToRoute('app_admin_table_index');
+        }
+
+        return $this->render('admin/table_new.html.twig', [
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/table/{id}/edit', name: 'table_edit')]
+    public function editTable(Table $table, Request $request, EntityManagerInterface $em): Response
+    {
+        $form = $this->createForm(TableType::class, $table);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            $this->addFlash('success', 'La table a été mise à jour.');
+            return $this->redirectToRoute('app_admin_table_index');
+        }
+
+        return $this->render('admin/table_edit.html.twig', [
+            'table' => $table,
+            'form' => $form->createView(),
+        ]);
+    }
+
+    #[Route('/table/{id}/delete', name: 'table_delete', methods: ['POST'])]
+    public function deleteTable(Table $table, Request $request, EntityManagerInterface $em): Response
+    {
+        if ($this->isCsrfTokenValid('delete' . $table->getId(), $request->request->get('_token'))) {
+            $em->remove($table);
+            $em->flush();
+            $this->addFlash('danger', 'Table supprimée.');
+        }
+
+        return $this->redirectToRoute('app_admin_table_index');
     }
 }

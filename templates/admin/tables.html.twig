@@ -1,52 +1,154 @@
 {# templates/admin/tables.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Gérer les tables{% endblock %}
+{% block title %}Gestion des tables - Administration{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-4 d-flex justify-content-between align-items-center">
-            Gérer les tables du restaurant
-            <a href="{{ path('app_admin_table_new') }}" class="btn btn-success">
-                + Ajouter une table
-            </a>
-        </h1>
+    <div class="container-fluid min-vh-100 py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.94), rgba(250, 249, 246, 0.94)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-5">
+                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-terracotta px-4 py-2">
+                    <i class="bi bi-arrow-left me-2"></i>Tableau de bord
+                </a>
+                <a href="{{ path('app_admin_table_new') }}" class="btn btn-terracotta btn-lg px-5 shadow-sm">
+                    <i class="bi bi-plus-circle me-2"></i>Nouvelle table
+                </a>
+            </div>
 
-        {% if tables|length > 0 %}
-            <div class="row row-cols-2 row-cols-md-4 g-4">
-                {% for table in tables %}
-                    <div class="col">
-                        <div class="card text-center h-100 shadow-sm border-3 {{ table.estlibre ? 'border-success' : 'border-danger' }}">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <h2 class="card-title">Table {{ table.numero }}</h2>
-                                    <p class="mb-2">{{ table.nbPlaces }} places</p>
-                                    <span class="badge fs-5 bg-{{ table.estlibre ? 'success' : 'danger' }}">
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                    Tables du restaurant
+                </h1>
+                <p class="text-muted" style="font-family: 'Montserrat', sans-serif; letter-spacing: 1px;">
+                    Organisation & disponibilité
+                </p>
+            </div>
+
+            {% if tables|length > 0 %}
+                <div class="row g-4">
+                    {% for table in tables %}
+                        <div class="col-sm-6 col-md-4 col-lg-3 col-xl-3">
+                            <div class="card shadow-sm border-0 rounded-4 h-100 d-flex flex-column transition position-relative overflow-hidden">
+                                <!-- Petit bandeau coloré indiquant l'état -->
+                                <div class="position-absolute top-0 end-0 p-3">
+                                <span class="badge rounded-pill px-3 py-2 fs-6 bg-{{ table.estlibre ? 'success' : 'danger' }}">
                                     {{ table.estlibre ? 'Libre' : 'Occupée' }}
                                 </span>
                                 </div>
-                                <div class="mt-3">
-                                    <a href="{{ path('app_admin_table_edit', {id: table.id}) }}" class="btn btn-sm btn-warning">
-                                        Modifier
-                                    </a>
-                                    <form method="post" action="{{ path('app_admin_table_delete', {id: table.id}) }}" onsubmit="return confirm('Supprimer cette table ?');" style="display:inline;">
-                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ table.id) }}">
-                                        <button class="btn btn-sm btn-danger">Supprimer</button>
-                                    </form>
+
+                                <!-- Icône illustrative de table -->
+                                <div class="text-center py-4 bg-light">
+                                    <i class="bi bi-table fs-1 text-terracotta opacity-75"></i>
+                                </div>
+
+                                <div class="card-body d-flex flex-column p-4">
+                                    <h3 class="h5 fw-semibold mb-3 text-center">
+                                        Table {{ table.numero }}
+                                    </h3>
+                                    <p class="text-muted text-center mb-4">
+                                        <i class="bi bi-people me-2"></i>
+                                        {{ table.nbPlaces }} place{{ table.nbPlaces > 1 ? 's' : '' }}
+                                    </p>
+
+                                    <div class="d-flex gap-2 mt-auto">
+                                        <a href="{{ path('app_admin_table_edit', {id: table.id}) }}"
+                                           class="btn btn-outline-terracotta btn-sm flex-fill py-2">
+                                            <i class="bi bi-pencil me-1"></i>Modifier
+                                        </a>
+                                        <form method="post" action="{{ path('app_admin_table_delete', {id: table.id}) }}"
+                                              onsubmit="return confirm('Supprimer cette table ?');"
+                                              class="d-inline flex-fill">
+                                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ table.id) }}">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm flex-fill py-2">
+                                                <i class="bi bi-trash me-1"></i>Supprimer
+                                            </button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="card shadow-sm border-0 rounded-5 py-5 px-4">
+                        <i class="bi bi-table fs-1 text-muted mb-4 opacity-50"></i>
+                        <h3 class="h4 fw-semibold text-dark">Aucune table configurée</h3>
+                        <p class="text-muted mb-4">Commencez par ajouter votre première table</p>
+                        <a href="{{ path('app_admin_table_new') }}" class="btn btn-terracotta btn-lg px-5 shadow-sm">
+                            <i class="bi bi-plus-circle me-2"></i>Ajouter la première table
+                        </a>
                     </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="alert alert-info text-center">
-                Aucune table configurée. <a href="{{ path('app_admin_table_new') }}">Ajoutez la première !</a>
-            </div>
-        {% endif %}
-
-        <div class="mt-4">
-            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">← Retour au tableau de bord</a>
+                </div>
+            {% endif %}
         </div>
     </div>
+
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .text-terracotta { color: var(--terracotta); }
+
+        .btn-terracotta {
+            background: var(--terracotta);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-terracotta:hover {
+            background: #a83a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .btn-outline-terracotta {
+            border: 2px solid var(--terracotta);
+            color: var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-terracotta:hover {
+            background: var(--terracotta);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+        }
+
+        .badge {
+            font-size: 0.9rem;
+        }
+
+        .rounded-4 { border-radius: 1rem; }
+        .rounded-5 { border-radius: 1.5rem; }
+
+        .transition { transition: all 0.3s ease; }
+    </style>
 {% endblock %}

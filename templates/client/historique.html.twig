@@ -3,147 +3,183 @@
 
 {% block title %}Mon historique{% endblock %}
 
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
 {% block body %}
-    <div class="mb-3">
-        <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-left"></i> Retour
-        </a>
-    </div>
-
-    <div class="container mt-4">
-        <h1 class="h2 mb-5 text-center text-info">Mon historique</h1>
-
-        <div class="row">
-            {# ===================== RÉSERVATIONS ===================== #}
-            <div class="col-lg-6">
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">
-                            <i class="bi bi-calendar-check"></i> Mes réservations
-                        </h4>
-                    </div>
-
-                    <div class="card-body">
-                        {% if reservations|length > 0 %}
-                            {% for r in reservations %}
-                                <div class="border-bottom pb-3 mb-3">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <strong>{{ r.dateHeure|date('d/m/Y à H:i') }}</strong><br>
-                                            <small class="text-muted">
-                                                <i class="bi bi-people"></i>
-                                                {{ r.personnes }} personne{{ r.personnes > 1 ? 's' : '' }}
-                                            </small>
-
-                                            {% if r.message %}
-                                                <br>
-                                                <em class="text-muted">"{{ r.message }}"</em>
-                                            {% endif %}
-                                        </div>
-                                        <span class="badge bg-info">Réservée</span>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="text-center py-3">
-                                <i class="bi bi-calendar-x text-muted fs-2"></i>
-                                <p class="text-muted mt-2">Aucune réservation pour le moment.</p>
-                                <a href="{{ path('app_client_reserver_table') }}"
-                                   class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-plus-circle"></i> Réserver une table
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
+    <div class="container-fluid min-vh-100 py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.94), rgba(250, 249, 246, 0.94)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="container">
+            <div class="text-start mb-4">
+                <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-terracotta px-4 py-2">
+                    <i class="bi bi-arrow-left me-2"></i>Tableau de bord
+                </a>
             </div>
 
-            {# ===================== COMMANDES ===================== #}
-            <div class="col-lg-6">
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h4 class="mb-0">
-                            <i class="bi bi-bag-check"></i> Mes commandes
-                        </h4>
-                    </div>
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                    Mon historique
+                </h1>
+                <p class="text-muted" style="font-family: 'Montserrat', sans-serif; letter-spacing: 1px;">
+                    Réservations & commandes passées
+                </p>
+            </div>
 
-                    <div class="card-body">
-                        {% if commandes|length > 0 %}
-                            {% for c in commandes %}
-                                <div class="border-bottom pb-3 mb-3">
-
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <strong>Commande #{{ c.id }}</strong><br>
-                                            <small class="text-muted">
-                                                <i class="bi bi-clock"></i>
-                                                {{ c.date|date('d/m/Y H:i') }}
-                                            </small><br>
-                                            <small class="text-success">
-                                                <i class="bi bi-cash"></i>
-                                                {{ c.total|number_format(2) }} DT – {{ c.modePaiement }}
-                                            </small>
-                                        </div>
-
-                                        <div class="text-end">
-                                            <span class="badge
-                                                {% if c.status.value == 'en_cours' %}bg-warning
-                                                {% elseif c.status.value in ['livree', 'terminee'] %}bg-success
-                                                {% elseif c.status.value == 'annulee' %}bg-danger
-                                                {% else %}bg-secondary{% endif %}">
-                                                {{ c.status.value|replace({'_' : ' '})|title }}
+            <div class="row g-5">
+                {# ===================== RÉSERVATIONS ===================== #}
+                <div class="col-lg-6">
+                    <div class="card shadow-sm border-0 rounded-5 h-100 overflow-hidden transition">
+                        <div class="card-header text-white text-center py-4" style="background: var(--terracotta);">
+                            <i class="bi bi-calendar-check fs-2 me-2"></i>
+                            <h2 class="h5 mb-0 fw-medium">Mes réservations</h2>
+                        </div>
+                        <div class="card-body p-4">
+                            {% if reservations|length > 0 %}
+                                {% for r in reservations %}
+                                    <div class="border-bottom pb-4 mb-4 {% if not loop.last %}border-light{% endif %}">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong class="fs-5">{{ r.dateHeure|date('d/m/Y à H:i') }}</strong><br>
+                                                <span class="text-muted">
+                                                <i class="bi bi-people me-2"></i>
+                                                {{ r.personnes }} personne{{ r.personnes > 1 ? 's' : '' }}
                                             </span>
+                                                {% if r.message %}
+                                                    <p class="text-muted fst-italic mt-3 mb-0">“{{ r.message }}”</p>
+                                                {% endif %}
+                                            </div>
+                                            <span class="badge rounded-pill px-4 py-2 bg-terracotta text-white">
+                                            Réservée
+                                        </span>
                                         </div>
                                     </div>
-
-                                    {# ===== DÉTAILS COMMANDE ===== #}
-                                    <div class="collapse" id="detailsCommande{{ c.id }}">
-                                        <hr>
-                                        <h6 class="mb-3">Détails :</h6>
-
-                                        <ul class="list-group list-group-flush">
-                                            {% for ligne in c.ligneCommandes %}
-                                                <li class="list-group-item d-flex justify-content-between px-0">
-                                                    <span>
-                                                        {{ ligne.quantite }} × {{ ligne.plat.nom }}
-                                                    </span>
-                                                    <span class="text-muted">
-                                                        {{ (ligne.prixUnitaire * ligne.quantite)|number_format(2) }} DT
-                                                    </span>
-                                                </li>
-                                            {% else %}
-                                                <li class="list-group-item text-muted">
-                                                    Aucun article
-                                                </li>
-                                            {% endfor %}
-                                        </ul>
-
-                                        <div class="text-end mt-3">
-                                            <strong>Total : {{ c.total|number_format(2) }} DT</strong>
-                                        </div>
-                                    </div>
-
-                                    {# ===== BOUTON DÉTAILS ===== #}
-                                    <div class="text-center mt-2">
-                                        <button class="btn btn-sm btn-outline-secondary"
-                                                data-bs-toggle="collapse"
-                                                data-bs-target="#detailsCommande{{ c.id }}">
-                                            Voir les détails
-                                            <i class="bi bi-chevron-down"></i>
-                                        </button>
-                                    </div>
-
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-calendar-x fs-1 mb-4 opacity-50"></i>
+                                    <p class="mb-4">Aucune réservation pour le moment</p>
+                                    <a href="{{ path('app_client_reserver_table') }}" class="btn btn-outline-terracotta px-4">
+                                        Réserver une table
+                                    </a>
                                 </div>
-                            {% endfor %}
-                        {% else %}
-                            <div class="text-center py-3">
-                                <i class="bi bi-cart-x text-muted fs-2"></i>
-                                <p class="text-muted mt-2">Aucune commande passée.</p>
-                            </div>
-                        {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                {# ===================== COMMANDES ===================== #}
+                <div class="col-lg-6">
+                    <div class="card shadow-sm border-0 rounded-5 h-100 overflow-hidden transition">
+                        <div class="card-header text-white text-center py-4" style="background: var(--olive);">
+                            <i class="bi bi-basket2 fs-2 me-2"></i>
+                            <h2 class="h5 mb-0 fw-medium">Mes commandes</h2>
+                        </div>
+                        <div class="card-body p-4">
+                            {% if commandes|length > 0 %}
+                                {% for c in commandes %}
+                                    <div class="border-bottom pb-4 mb-4 {% if not loop.last %}border-light{% endif %}">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div>
+                                                <strong class="fs-5">Commande #{{ c.id }}</strong><br>
+                                                <span class="text-muted">{{ c.date|date('d/m/Y à H:i') }}</span><br>
+                                                <span class="text-olive fw-semibold fs-5">
+                                                {{ c.total|number_format(2) }} DT – {{ c.modePaiement }}
+                                            </span>
+                                            </div>
+                                            <span class="badge rounded-pill px-4 py-2
+                                            {% if c.status.value == 'en_cours' %}bg-warning text-dark
+                                            {% elseif c.status.value in ['livree','terminee'] %}bg-success
+                                            {% elseif c.status.value == 'annulee' %}bg-danger
+                                            {% else %}bg-secondary{% endif %}">
+                                            {{ c.status.value|replace({'_' : ' '})|title }}
+                                        </span>
+                                        </div>
+
+                                        <div class="collapse" id="detailsCommande{{ c.id }}">
+                                            <ul class="list-unstyled mb-0">
+                                                {% for ligne in c.ligneCommandes %}
+                                                    <li class="d-flex justify-content-between py-2 border-bottom border-light">
+                                                        <span>{{ ligne.quantite }} × {{ ligne.plat.nom }}</span>
+                                                        <span class="fw-medium">{{ (ligne.quantite * ligne.prixUnitaire)|number_format(2) }} DT</span>
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                            <div class="text-end mt-3 fw-bold fs-5 text-olive">
+                                                Total : {{ c.total|number_format(2) }} DT
+                                            </div>
+                                        </div>
+
+                                        <div class="text-center mt-3">
+                                            <button class="btn btn-link text-terracotta text-decoration-none fw-medium"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#detailsCommande{{ c.id }}">
+                                                Voir les détails <i class="bi bi-chevron-down ms-1"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-5 text-muted">
+                                    <i class="bi bi-basket fs-1 mb-4 opacity-50"></i>
+                                    <p>Aucune commande passée</p>
+                                </div>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .text-terracotta { color: var(--terracotta); }
+        .text-olive { color: var(--olive); }
+        .bg-terracotta { background-color: var(--terracotta); }
+
+        .btn-outline-terracotta {
+            border: 2px solid var(--terracotta);
+            color: var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-terracotta:hover {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+        }
+
+        .badge {
+            font-size: 0.9rem;
+        }
+
+        .rounded-5 { border-radius: 1.5rem; }
+
+        .transition { transition: all 0.3s ease; }
+    </style>
 {% endblock %}

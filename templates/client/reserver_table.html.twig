@@ -1,90 +1,173 @@
 {# templates/client/reserver_table.html.twig #}
 {% extends 'base.html.twig' %}
+
 {% block title %}Réserver une table{% endblock %}
 
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-5">
-        <!-- Navigation personnalisée -->
-        {#
-        <nav class="navbar navbar-light bg-light mb-4 shadow-sm">
-            <div class="container">
-                <div class="d-flex justify-content-between w-100 align-items-center">
-                    <div>
-                        <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-arrow-left"></i> Retour
-                        </a>
-                    </div>
-                    <h1 class="h4 mb-0 text-success">Réserver une Table</h1>
-
-                </div>
+    <div class="container-fluid min-vh-100 d-flex align-items-center py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.94), rgba(250, 249, 246, 0.94)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="container">
+            <div class="text-start mb-4">
+                <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-terracotta px-4 py-2">
+                    <i class="bi bi-arrow-left me-2"></i>Tableau de bord
+                </a>
             </div>
-        </nav>
-        #}
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0"><i class="bi bi-calendar-plus"></i> Réserver une table</h3>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" action="{{ path('app_client_reserver_table_post') }}">
-                            <div class="mb-3">
-                                <label for="personnes" class="form-label">Nombre de personnes *</label>
-                                <select class="form-select" id="personnes" name="personnes" required>
-                                    <option value="">Sélectionnez...</option>
-                                    <option value="1">1 personne</option>
-                                    <option value="2">2 personnes</option>
-                                    <option value="3">3 personnes</option>
-                                    <option value="4">4 personnes</option>
-                                    <option value="5">5 personnes</option>
-                                    <option value="6">6 personnes</option>
-                                    <option value="7">7 personnes</option>
-                                    <option value="8">8 personnes</option>
-                                    <option value="9">9 personnes</option>
-                                    <option value="10">10 personnes ou plus</option>
-                                </select>
-                            </div>
 
-                            <div class="mb-3">
-                                <label for="dateHeure" class="form-label">Date et heure *</label>
-                                <input type="datetime-local" class="form-control" id="dateHeure" name="dateHeure" required>
-                                <small class="text-muted">Sélectionnez la date et l'heure souhaitées</small>
-                            </div>
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                    Réserver une table
+                </h1>
+                <p class="lead text-muted" style="font-family: 'Montserrat', sans-serif; letter-spacing: 1px;">
+                    Choisissez le nombre de personnes et la date
+                </p>
+            </div>
 
-                            <div class="mb-3">
-                                <label for="message" class="form-label">Message (optionnel)</label>
-                                <textarea class="form-control" id="message" name="message" rows="3"
-                                          placeholder="Ex: Table près de la fenêtre, anniversaire, allergie alimentaire..."></textarea>
-                            </div>
+            <div class="row justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-6">
+                    <div class="card shadow-lg border-0 rounded-5 overflow-hidden transition">
+                        <div class="card-header text-white text-center py-4" style="background: var(--terracotta);">
+                            <i class="bi bi-calendar-plus fs-2 me-2"></i>
+                            <h2 class="h4 mb-0 fw-medium" style="font-family: 'Playfair Display', serif;">
+                                Formulaire de réservation
+                            </h2>
+                        </div>
 
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg">
-                                    <i class="bi bi-check-circle"></i> Confirmer la réservation
-                                </button>
-                                <a href="{{ path('app_client_dashboard') }}" class="btn btn-outline-secondary">
-                                    <i class="bi bi-arrow-left"></i> Retour
-                                </a>
-                            </div>
-                        </form>
+                        <div class="card-body p-5">
+                            <form method="post" action="{{ path('app_client_reserver_table_post') }}">
+                                <div class="mb-4">
+                                    <label for="personnes" class="form-label fw-medium text-muted">
+                                        Nombre de personnes *
+                                    </label>
+                                    <select class="form-select form-select-lg rounded-4" id="personnes" name="personnes" required>
+                                        <option value="" selected disabled>Sélectionnez...</option>
+                                        {% for i in 1..12 %}
+                                            <option value="{{ i }}">{{ i }} personne{{ i > 1 ? 's' : '' }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="dateHeure" class="form-label fw-medium text-muted">
+                                        Date et heure *
+                                    </label>
+                                    <input type="datetime-local"
+                                           class="form-control form-control-lg rounded-4"
+                                           id="dateHeure"
+                                           name="dateHeure"
+                                           required>
+                                    <small class="text-muted d-block mt-2">
+                                        Nous sommes ouverts tous les jours de 12h à 23h
+                                    </small>
+                                </div>
+
+                                <div class="mb-4">
+                                    <label for="message" class="form-label fw-medium text-muted">
+                                        Message (optionnel)
+                                    </label>
+                                    <textarea class="form-control form-control-lg rounded-4"
+                                              id="message"
+                                              name="message"
+                                              rows="5"
+                                              placeholder="Ex : Table près de la fenêtre, anniversaire, allergie alimentaire..."></textarea>
+                                </div>
+
+                                <div class="d-flex gap-3 justify-content-end mt-5">
+                                    <a href="{{ path('app_client_dashboard') }}"
+                                       class="btn btn-outline-terracotta btn-lg flex-fill py-3 shadow-sm">
+                                        <i class="bi bi-arrow-left me-2"></i>Retour
+                                    </a>
+                                    <button type="submit" class="btn btn-terracotta btn-lg flex-fill py-3 shadow-sm">
+                                        <i class="bi bi-check-circle me-2"></i>Confirmer la réservation
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
-
 
     <script>
-        // Définir la date minimale (aujourd'hui)
+        // Date minimale : maintenant
         const now = new Date();
         const minDate = now.toISOString().slice(0, 16);
         document.getElementById('dateHeure').min = minDate;
 
-        // Définir la date par défaut (demain à 19h)
+        // Date par défaut : demain à 19h00
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 1);
         tomorrow.setHours(19, 0, 0, 0);
         document.getElementById('dateHeure').value = tomorrow.toISOString().slice(0, 16);
     </script>
+
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .btn-terracotta {
+            background: var(--terracotta);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-terracotta:hover {
+            background: #a83a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .btn-outline-terracotta {
+            border: 2px solid var(--terracotta);
+            color: var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-terracotta:hover {
+            background: var(--terracotta);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+        }
+
+        .form-control, .form-select {
+            border: 1px solid #ddd;
+            padding: 0.8rem 1rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 0.2rem rgba(193, 74, 58, 0.15);
+        }
+
+        .rounded-5 { border-radius: 1.5rem; }
+
+        .transition { transition: all 0.3s ease; }
+    </style>
 {% endblock %}

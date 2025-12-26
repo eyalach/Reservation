@@ -25,7 +25,7 @@ class TableType extends AbstractType
             ->add('estlibre', CheckboxType::class, [
                 'label'    => 'Table libre ?',
                 'required' => false,
-                'help'     => 'Décochez si la table est occupée',
+                'help'     => 'Décochez si la table est libre',
             ]);
     }
 

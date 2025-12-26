@@ -3,98 +3,213 @@
 
 {% block title %}Serveur - Tableau de bord{% endblock %}
 
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
 {% block body %}
-    {# Icône de déconnexion simple en haut à droite #}
-    <div class="position-fixed" style="top: 15px; right: 20px; z-index: 1050;">
-        <a href="{{ path('app_logout') }}"
-           class="btn btn-danger rounded-circle shadow-sm"
-           title="Se déconnecter">
-            <i class="fas fa-power-off"></i>
-        </a>
-    </div>
-
-    <div class="container mt-4">
-        <h1 class="h2 mb-4 text-center text-primary">Gestion de la salle – Serveur</h1>
-
-        <!-- État des tables -->
-        <h3 class="mb-3">État des tables</h3>
-
-        {# --- LA CORRECTION EST ICI : Ajout de la div class="row" --- #}
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
-            {% for table in tables %}
-                <div class="col">
-                    <div class="card text-center h-100 shadow-sm {{ table.estLibre ? 'border-success' : 'border-danger' }}">
-                        <div class="card-header fw-bold fs-4 {{ table.estLibre ? 'bg-success text-white' : 'bg-danger text-white' }}">
-                            Table {{ table.numero }}
-                        </div>
-                        <div class="card-body d-flex flex-column justify-content-between">
-                            <div>
-                                <h5 class="card-title mb-2">{{ table.nbPlaces }} places</h5>
-                                <span class="badge fs-6 {{ table.estLibre ? 'bg-success' : 'bg-danger' }}">
-                                    {{ table.estLibre ? 'Libre' : 'Occupée' }}
-                                </span>
-                            </div>
-
-                            <div class="mt-4 d-grid gap-2">
-                                {# Bouton pour prendre une commande (uniquement si libre) #}
-                                {% if table.estLibre %}
-                                    <a href="{{ path('app_serveur_prendre_commande_table', {id: table.id}) }}"
-                                       class="btn btn-success btn-sm">Prendre commande</a>
-                                {% endif %}
-
-                                {# Bouton pour changer l'état manuellement #}
-                                <form method="post" action="{{ path('app_serveur_table_toggle_statut', {id: table.id}) }}">
-                                    <button type="submit" class="btn {{ table.estLibre ? 'btn-outline-danger' : 'btn-outline-success' }} btn-sm w-100">
-                                        <i class="fas fa-sync-alt me-1"></i>
-                                        Marquer comme {{ table.estLibre ? 'Occupée' : 'Libre' }}
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            {% else %}
-                <div class="col-12 text-center py-5">
-                    <div class="alert alert-info">Aucune table configurée.</div>
-                </div>
-            {% endfor %}
-        </div> {# --- FIN DU ROW --- #}
-
-        <hr class="my-5">
-
-        <!-- Commandes en cours -->
-        <h3 class="mb-3">Commandes en cours</h3>
-        {% if commandesEnCours|length > 0 %}
-            <div class="list-group mb-4 shadow-sm">
-                {% for commande in commandesEnCours %}
-                    <a href="{{ path('app_serveur_commandes_en_cours') }}" class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between align-items-center">
-                            <h5 class="mb-1">
-                                {% if commande.tableCommande %}
-                                    <span class="badge bg-primary me-2">Table {{ commande.tableCommande.numero }}</span>
-                                {% else %}
-                                    <span class="badge bg-secondary me-2">Sans Table</span>
-                                {% endif %}
-                                Commande #{{ commande.id }}
-                            </h5>
-                            <small class="text-muted"><i class="far fa-clock"></i> {{ commande.date ? commande.date|date('H:i') : 'Inconnue' }}</small>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <span>Statut: <strong class="text-info">{{ commande.status.value|upper }}</strong></span>
-                            <span class="badge bg-light text-dark border">{{ commande.ligneCommandes|length }} article(s)</span>
-                        </div>
-                    </a>
-                {% endfor %}
-            </div>
-            <div class="text-center">
-                <a href="{{ path('app_serveur_commandes_en_cours') }}" class="btn btn-primary">
-                    Voir les détails des préparations
+    <div class="container-fluid min-vh-100 py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.94), rgba(250, 249, 246, 0.94)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="container">
+            <!-- Déconnexion en haut à droite -->
+            <div class="text-end mb-4">
+                <a href="{{ path('app_logout') }}" class="btn btn-outline-terracotta rounded-circle p-3 shadow-sm" title="Se déconnecter">
+                    <i class="bi bi-box-arrow-right fs-4"></i>
                 </a>
             </div>
-        {% else %}
-            <div class="alert alert-info text-center">
-                Aucune commande en cours pour le moment.
+
+            <!-- Titre principal -->
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                    Gestion de la salle
+                </h1>
+                <p class="lead text-muted" style="font-family: 'Montserrat', sans-serif; letter-spacing: 1px;">
+                    Tableau de bord serveur
+                </p>
             </div>
-        {% endif %}
+
+            <!-- État des tables -->
+            <h3 class="h4 fw-semibold mb-4 text-terracotta">
+                <i class="bi bi-table me-3"></i>État des tables
+            </h3>
+
+            {% if tables|length > 0 %}
+                <div class="row g-4 mb-5">
+                    {% for table in tables %}
+                        <div class="col-sm-6 col-md-4 col-lg-3">
+                            <div class="card shadow-lg border-0 rounded-5 h-100 overflow-hidden transition
+                            {{ table.estLibre ? 'border-success border-4' : 'border-danger border-4' }}">
+                                <div class="card-header text-white text-center py-4 fw-bold fs-5
+                                {{ table.estLibre ? 'bg-success' : 'bg-danger' }}">
+                                    Table {{ table.numero }}
+                                </div>
+                                <div class="card-body text-center p-4 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <h4 class="fw-semibold mb-3">{{ table.nbPlaces }} place{{ table.nbPlaces > 1 ? 's' : '' }}</h4>
+                                        <span class="badge rounded-pill px-4 py-3 fs-5
+                                        {{ table.estLibre ? 'bg-success' : 'bg-danger' }}">
+                                        {{ table.estLibre ? 'Libre' : 'Occupée' }}
+                                    </span>
+                                    </div>
+
+                                    <div class="mt-4 d-grid gap-3">
+                                        {% if table.estLibre %}
+                                            <a href="{{ path('app_serveur_prendre_commande_table', {id: table.id}) }}"
+                                               class="btn btn-olive btn-lg shadow-sm">
+                                                <i class="bi bi-cart-plus me-2"></i>Prendre commande
+                                            </a>
+                                        {% endif %}
+
+                                        <form method="post" action="{{ path('app_serveur_table_toggle_statut', {id: table.id}) }}">
+                                            <button type="submit"
+                                                    class="btn {{ table.estLibre ? 'btn-outline-danger' : 'btn-outline-success' }} btn-lg shadow-sm">
+                                                <i class="bi bi-arrow-repeat me-2"></i>
+                                                Marquer comme {{ table.estLibre ? 'Occupée' : 'Libre' }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5 mb-5">
+                    <div class="card shadow-sm border-0 rounded-5 py-5">
+                        <i class="bi bi-exclamation-triangle fs-1 text-warning mb-4 opacity-75"></i>
+                        <h4 class="fw-semibold">Aucune table configurée</h4>
+                        <p class="text-muted">Contactez l'administrateur pour ajouter des tables.</p>
+                    </div>
+                </div>
+            {% endif %}
+
+            <hr class="my-5 border-light">
+
+            <!-- Commandes en cours -->
+            <h3 class="h4 fw-semibold mb-4 text-terracotta">
+                <i class="bi bi-list-check me-3"></i>Commandes en cours
+            </h3>
+
+            {% if commandesEnCours|length > 0 %}
+                <div class="row g-4 mb-5">
+                    {% for commande in commandesEnCours %}
+                        <div class="col-md-6 col-lg-4">
+                            <a href="{{ path('app_serveur_commandes_en_cours') }}" class="text-decoration-none">
+                                <div class="card shadow-sm border-0 rounded-5 h-100 transition">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h5 class="fw-semibold mb-0">
+                                                {% if commande.tableCommande %}
+                                                    <span class="badge bg-terracotta text-white px-3 py-2">Table {{ commande.tableCommande.numero }}</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary px-3 py-2">Sans table</span>
+                                                {% endif %}
+                                                #{{ commande.id }}
+                                            </h5>
+                                            <small class="text-muted">
+                                                <i class="bi bi-clock me-1"></i>{{ commande.date|date('H:i') }}
+                                            </small>
+                                        </div>
+                                        <p class="mb-2">
+                                            Statut : <strong class="text-terracotta">
+                                                {{ commande.status.value|replace({'_': ' '})|title }}
+                                            </strong>
+                                        </p>
+                                        <p class="mb-0">
+                                        <span class="badge bg-light text-dark border px-3 py-2">
+                                            {{ commande.ligneCommandes|length }} article{{ commande.ligneCommandes|length > 1 ? 's' : '' }}
+                                        </span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="text-center">
+                    <a href="{{ path('app_serveur_commandes_en_cours') }}" class="btn btn-terracotta btn-lg px-5 shadow-sm">
+                        <i class="bi bi-eye me-2"></i>Voir tous les détails
+                    </a>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <div class="card shadow-sm border-0 rounded-5 py-5">
+                        <i class="bi bi-check-circle fs-1 text-success mb-4 opacity-75"></i>
+                        <h4 class="fw-semibold">Aucune commande en cours</h4>
+                        <p class="text-muted">Tout est calme en cuisine pour le moment !</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
     </div>
+
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .text-terracotta { color: var(--terracotta); }
+
+        .btn-olive {
+            background: var(--olive);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-olive:hover {
+            background: #58701d;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(107, 142, 35, 0.3);
+        }
+
+        .btn-terracotta {
+            background: var(--terracotta);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-terracotta:hover {
+            background: #a83a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .btn-outline-terracotta {
+            border: 2px solid var(--terracotta);
+            color: var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-terracotta:hover {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+        }
+
+        .rounded-5 { border-radius: 1.5rem; }
+
+        .transition { transition: all 0.3s ease; }
+    </style>
 {% endblock %}

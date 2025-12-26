@@ -17,6 +17,10 @@ class UserType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        // On récupère l'objet User pour savoir si on est en création ou modification
+        $user = $options['data'];
+        $isNew = $user->getId() === null;
+
         $builder
             ->add('email', EmailType::class, [
                 'label' => 'Email',
@@ -38,8 +42,16 @@ class UserType extends AbstractType
             ->add('plainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'mapped' => false,
-                'first_options'  => ['label' => 'Mot de passe'],
-                'second_options' => ['label' => 'Confirmer le mot de passe'],
+                'required' => $isNew, // OBLIGATOIRE seulement si c'est un nouvel utilisateur
+                'first_options'  => [
+                    'label' => 'Mot de passe',
+                    'attr' => ['class' => 'form-control'],
+                    'help' => !$isNew ? 'Laissez vide pour ne pas modifier le mot de passe actuel.' : ''
+                ],
+                'second_options' => [
+                    'label' => 'Confirmer le mot de passe',
+                    'attr' => ['class' => 'form-control']
+                ],
                 'invalid_message' => 'Les mots de passe ne correspondent pas.',
             ])
             ->add('roles', ChoiceType::class, [
@@ -48,27 +60,25 @@ class UserType extends AbstractType
                     'Serveur'        => 'ROLE_SERVEUR',
                     'Administrateur' => 'ROLE_ADMIN',
                 ],
-                'expanded' => true,   // boutons radio
+                'expanded' => true,
                 'multiple' => false,
                 'label' => 'Rôle',
-
+                'label_attr' => ['class' => 'fw-bold mt-2']
             ]);
 
-        // Transformer pour gérer le champ roles (qui est un tableau en BDD mais un string dans le formulaire)
+        // Transformer pour gérer le champ roles
         $builder->get('roles')
             ->addModelTransformer(new CallbackTransformer(
                 function ($rolesArray) {
-                    // retirer le ROLE_USER ajouté automatiquement par getRoles()
+                    // S'assure que c'est un tableau avant de filtrer
+                    $rolesArray = (array) $rolesArray;
                     $rolesArray = array_filter($rolesArray, fn($r) => $r !== 'ROLE_USER');
-
-                    // prendre uniquement le vrai rôle choisi
                     return array_values($rolesArray)[0] ?? 'ROLE_USER';
                 },
                 function ($roleString) {
                     return [$roleString];
                 }
             ));
-
     }
 
     public function configureOptions(OptionsResolver $resolver): void

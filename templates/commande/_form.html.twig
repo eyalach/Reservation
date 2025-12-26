@@ -1,4 +1,101 @@
-{{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Save') }}</button>
-{{ form_end(form) }}
+<div class="row justify-content-center">
+    <div class="col-md-11 col-lg-10 col-xl-8">
+        <div class="card shadow-lg border-0 rounded-5 overflow-hidden transition">
+            <div class="card-header text-white text-center py-4" style="background: var(--terracotta);">
+                <i class="bi bi-pencil-square fs-2 me-2"></i>
+                <h2 class="h4 mb-0 fw-medium" style="font-family: 'Playfair Display', serif;">
+                    {{ block('title') }}  {# Réutilise le titre de la page #}
+                </h2>
+            </div>
+
+            <div class="card-body p-5">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <div class="row g-4">
+                    {{ form_widget(form) }}  {# Tous les champs du formulaire #}
+                </div>
+
+                {{ form_errors(form) }}  {# Erreurs globales si besoin #}
+
+                <div class="d-flex gap-3 justify-content-end mt-5">
+                    <a href="javascript:history.back()" class="btn btn-outline-terracotta btn-lg flex-fill py-3 shadow-sm">
+                        <i class="bi bi-arrow-left me-2"></i>Annuler
+                    </a>
+                    <button type="submit" class="btn btn-terracotta btn-lg flex-fill py-3 shadow-sm">
+                        <i class="bi bi-check-circle me-2"></i>
+                        {{ button_label|default('Enregistrer') }}
+                    </button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --terracotta: #C14A3A;
+        --olive: #6B8E23;
+        --gold: #D4AF37;
+        --text: #333333;
+        --muted: #666666;
+        --bg: #FAF9F6;
+    }
+
+    .form-control, .form-select, .form-check-input {
+        border: 1px solid #ddd;
+        padding: 0.8rem 1rem;
+        border-radius: 1rem;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: var(--terracotta);
+        box-shadow: 0 0 0 0.2rem rgba(193, 74, 58, 0.15);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--terracotta);
+        border-color: var(--terracotta);
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: var(--muted);
+    }
+
+    .btn-terracotta {
+        background: var(--terracotta);
+        border: none;
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .btn-terracotta:hover {
+        background: #a83a2b;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+    }
+
+    .btn-outline-terracotta {
+        border: 2px solid var(--terracotta);
+        color: var(--terracotta);
+        transition: all 0.3s ease;
+    }
+    .btn-outline-terracotta:hover {
+        background: var(--terracotta);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+    }
+
+    .card {
+        background: white;
+        transition: transform 0.4s ease;
+    }
+    .card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+    }
+
+    .rounded-5 { border-radius: 1.5rem; }
+    .transition { transition: all 0.3s ease; }
+</style>

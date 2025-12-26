@@ -1,30 +1,210 @@
+{# templates/commande/show.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Commande{% endblock %}
+{% block title %}Détails de la commande #{{ commande.id }}{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
 
 {% block body %}
-    <h1>Commande</h1>
+    <div class="container-fluid min-vh-100 py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.94), rgba(250, 249, 246, 0.94)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="container">
+            <div class="text-start mb-4">
+                <a href="{{ path('app_commande_index') }}" class="btn btn-outline-terracotta px-4 py-2">
+                    <i class="bi bi-arrow-left me-2"></i>Retour à la liste des commandes
+                </a>
+            </div>
 
-    <table class="table">
-        <tbody>
-            <tr>
-                <th>Id</th>
-                <td>{{ commande.id }}</td>
-            </tr>
-            <tr>
-                <th>Date</th>
-                <td>{{ commande.date ? commande.date|date('Y-m-d H:i:s') : '' }}</td>
-            </tr>
-            <tr>
-                <th>Total</th>
-                <td>{{ commande.total }}</td>
-            </tr>
-        </tbody>
-    </table>
+            <div class="row justify-content-center">
+                <div class="col-md-11 col-lg-10 col-xl-8">
+                    <div class="card shadow-lg border-0 rounded-5 overflow-hidden transition">
+                        <div class="card-header text-white text-center py-4" style="background: var(--olive);">
+                            <i class="bi bi-basket2 fs-2 me-2"></i>
+                            <h2 class="h4 mb-0 fw-medium" style="font-family: 'Playfair Display', serif;">
+                                Commande #{{ commande.id }}
+                            </h2>
+                        </div>
 
-    <a href="{{ path('app_commande_index') }}">back to list</a>
+                        <div class="card-body p-5">
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Date</span>
+                                        <span class="detail-value">
+                                        {{ commande.date ? commande.date|date('d/m/Y à H:i') : '—' }}
+                                    </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="detail-item">
+                                        <span class="detail-label">Total</span>
+                                        <span class="detail-value fs-4 fw-bold text-olive">
+                                        {{ commande.total|number_format(2) }} DT
+                                    </span>
+                                    </div>
+                                </div>
 
-    <a href="{{ path('app_commande_edit', {'id': commande.id}) }}">edit</a>
+                                {% if commande.status %}
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Statut</span>
+                                            <span class="badge rounded-pill px-4 py-2 fs-6
+                                        {% if commande.status.value == 'en_cours' %}bg-warning text-dark
+                                        {% elseif commande.status.value in ['livree','terminee'] %}bg-success
+                                        {% elseif commande.status.value == 'annulee' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ commande.status.value|replace({'_' : ' '})|title }}
+                                    </span>
+                                        </div>
+                                    </div>
+                                {% endif %}
 
-    {{ include('commande/_delete_form.html.twig') }}
+                                {% if commande.modePaiement %}
+                                    <div class="col-md-6">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Mode de paiement</span>
+                                            <span class="detail-value">{{ commande.modePaiement }}</span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                {% if commande.client %}
+                                    <div class="col-12">
+                                        <div class="detail-item">
+                                            <span class="detail-label">Client</span>
+                                            <span class="detail-value">
+                                        {{ commande.client.prenom }} {{ commande.client.nom }}
+                                        ({{ commande.client.email }})
+                                    </span>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {# Détails des plats commandés (si ligneCommandes existe) #}
+                            {% if commande.ligneCommandes|length > 0 %}
+                                <hr class="my-5">
+                                <h4 class="fw-semibold text-olive mb-4">
+                                    <i class="bi bi-list-ul me-2"></i>Plats commandés
+                                </h4>
+                                <ul class="list-group list-group-flush">
+                                    {% for ligne in commande.ligneCommandes %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center py-3">
+                                            <div>
+                                                <strong>{{ ligne.quantite }} × {{ ligne.plat.nom }}</strong>
+                                                {% if ligne.plat.description %}
+                                                    <br><small class="text-muted">{{ ligne.plat.description }}</small>
+                                                {% endif %}
+                                            </div>
+                                            <span class="fw-medium text-olive">
+                                            {{ (ligne.quantite * ligne.prixUnitaire)|number_format(2) }} DT
+                                        </span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                                <div class="text-end mt-4">
+                                    <h4 class="fw-bold text-olive">Total : {{ commande.total|number_format(2) }} DT</h4>
+                                </div>
+                            {% endif %}
+
+                            <div class="d-flex gap-3 justify-content-end mt-5">
+                                <a href="{{ path('app_commande_edit', {'id': commande.id}) }}"
+                                   class="btn btn-outline-terracotta btn-lg shadow-sm">
+                                    <i class="bi bi-pencil me-2"></i>Modifier
+                                </a>
+
+                                {# Suppression #}
+                                <div class="d-inline">
+                                    {{ include('commande/_delete_form.html.twig') }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .text-olive { color: var(--olive); }
+
+        .detail-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+        .detail-label {
+            display: block;
+            font-size: 0.9rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .detail-value {
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        .btn-terracotta {
+            background: var(--terracotta);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-terracotta:hover {
+            background: #a83a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .btn-outline-terracotta {
+            border: 2px solid var(--terracotta);
+            color: var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-terracotta:hover {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+        }
+
+        .list-group-item {
+            background: transparent;
+        }
+
+        .rounded-5 { border-radius: 1.5rem; }
+
+        .transition { transition: all 0.3s ease; }
+    </style>
 {% endblock %}

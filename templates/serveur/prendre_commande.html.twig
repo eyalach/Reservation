@@ -1,78 +1,118 @@
+{# templates/serveur/prendre_commande.html.twig #}
 {% extends 'base.html.twig' %}
 
 {% block title %}Prendre commande - Table {{ table.numero }}{% endblock %}
 
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
+
 {% block body %}
-    <div class="container mt-4">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{{ path('app_serveur_dashboard') }}">Tableau de bord</a></li>
-                <li class="breadcrumb-item active">Table {{ table.numero }}</li>
-            </ol>
-        </nav>
+    <div class="container-fluid min-vh-100 py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.94), rgba(250, 249, 246, 0.94)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="container">
+            <div class="text-start mb-4">
+                <a href="{{ path('app_serveur_dashboard') }}" class="btn btn-outline-terracotta px-4 py-2">
+                    <i class="bi bi-arrow-left me-2"></i>Retour au tableau de bord
+                </a>
+            </div>
 
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Commande - Table {{ table.numero }}</h1>
-            <span class="badge bg-info fs-5">{{ table.nbPlaces }} places</span>
-        </div>
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                    Commande – Table {{ table.numero }}
+                </h1>
+                <p class="lead text-muted" style="font-family: 'Montserrat', sans-serif;">
+                <span class="badge bg-terracotta text-white px-4 py-2 fs-5">
+                    {{ table.nbPlaces }} place{{ table.nbPlaces > 1 ? 's' : '' }}
+                </span>
+                </p>
+            </div>
 
-        <form action="{{ path('app_serveur_prendre_commande_valider', {id: table.id}) }}" method="post">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Menu disponible</h5>
+            <div class="card shadow-lg border-0 rounded-5 overflow-hidden transition">
+                <div class="card-header text-white text-center py-4" style="background: var(--terracotta);">
+                    <i class="bi bi-menu-app fs-2 me-2"></i>
+                    <h2 class="h4 mb-0 fw-medium" style="font-family: 'Playfair Display', serif;">
+                        Menu disponible
+                    </h2>
                 </div>
+
                 <div class="card-body p-0">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                        <tr>
-                            <th>Plat</th>
-                            <th class="text-center">Prix</th>
-                            <th class="text-center" style="width: 150px;">Quantité</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for plat in plats %}
-                            <tr>
-                                <td>
-                                    <strong>{{ plat.nom }}</strong><br>
-                                    <small class="text-muted">{{ plat.description|default('') }}</small>
-                                </td>
-                                <td class="text-center align-middle">
-                                    {{ plat.prix|number_format(2, ',', ' ') }} €
-                                </td>
-                                <td class="text-center align-middle">
-                                    <div class="input-group">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="decrement({{ plat.id }})">-</button>
-                                        <input type="number"
-                                               name="plats[{{ plat.id }}]"
-                                               id="qty_{{ plat.id }}"
-                                               class="form-control form-control-sm text-center"
-                                               value="0"
-                                               min="0">
-                                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="increment({{ plat.id }})">+</button>
-                                    </div>
-                                </td>
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td colspan="3" class="text-center py-4">Aucun plat disponible pour le moment.</td>
-                            </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                <div class="card-footer bg-light d-flex justify-content-between align-items-center p-3">
-                    <a href="{{ path('app_serveur_dashboard') }}" class="btn btn-secondary">Annuler</a>
-                    <button type="submit" class="btn btn-success btn-lg">
-                        <i class="fas fa-check"></i> Valider la commande
-                    </button>
+                    <form action="{{ path('app_serveur_prendre_commande_valider', {id: table.id}) }}" method="post">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Plat</th>
+                                    <th class="text-center">Prix</th>
+                                    <th class="text-center" style="width: 200px;">Quantité</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for plat in plats %}
+                                    <tr>
+                                        <td class="ps-4">
+                                            <strong class="d-block fs-5">{{ plat.nom }}</strong>
+                                            {% if plat.description %}
+                                                <small class="text-muted d-block">{{ plat.description }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-center text-olive fw-bold fs-5">
+                                            {{ plat.prix|number_format(2, ',', ' ') }} DT
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="input-group input-group-lg" style="max-width: 180px; margin: 0 auto;">
+                                                <button type="button"
+                                                        class="btn btn-outline-terracotta rounded-start"
+                                                        onclick="decrement({{ plat.id }})">
+                                                    <i class="bi bi-dash-lg"></i>
+                                                </button>
+                                                <input type="number"
+                                                       name="plats[{{ plat.id }}]"
+                                                       id="qty_{{ plat.id }}"
+                                                       class="form-control text-center fw-bold fs-4"
+                                                       value="0"
+                                                       min="0"
+                                                       readonly>
+                                                <button type="button"
+                                                        class="btn btn-outline-terracotta rounded-end"
+                                                        onclick="increment({{ plat.id }})">
+                                                    <i class="bi bi-plus-lg"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center py-5 text-muted">
+                                            <i class="bi bi-emoji-frown fs-1 mb-3 opacity-50"></i><br>
+                                            Aucun plat disponible pour le moment.
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="card-footer bg-light d-flex flex-column flex-md-row justify-content-between align-items-center py-4 px-5 gap-3">
+                            <a href="{{ path('app_serveur_dashboard') }}"
+                               class="btn btn-outline-terracotta btn-lg px-5 shadow-sm order-md-first">
+                                <i class="bi bi-x-circle me-2"></i>Annuler
+                            </a>
+                            <button type="submit" class="btn btn-terracotta btn-lg px-5 shadow-sm">
+                                <i class="bi bi-check-circle me-2"></i>Valider la commande
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 
     <script>
-        // Fonctions simples pour faciliter la saisie sur tablette/mobile
+        // Boutons + / – optimisés pour tablette tactile
         function increment(id) {
             const input = document.getElementById('qty_' + id);
             input.value = parseInt(input.value) + 1;
@@ -85,4 +125,72 @@
             }
         }
     </script>
+
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .text-olive { color: var(--olive); }
+
+        .btn-terracotta {
+            background: var(--terracotta);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-terracotta:hover {
+            background: #a83a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .btn-outline-terracotta {
+            border: 2px solid var(--terracotta);
+            color: var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-terracotta:hover {
+            background: var(--terracotta);
+            color: white;
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+        }
+
+        .input-group button {
+            width: 60px;
+            font-size: 1.5rem;
+        }
+
+        .form-control[readonly] {
+            background-color: white;
+        }
+
+        .rounded-5 { border-radius: 1.5rem; }
+
+        .transition { transition: all 0.3s ease; }
+
+        @media (max-width: 768px) {
+            .input-group-lg { max-width: 160px !important; }
+            .card-footer { flex-direction: column; }
+        }
+    </style>
 {% endblock %}

@@ -1,67 +1,188 @@
 {# templates/admin/statistiques.html.twig #}
 {% extends 'base.html.twig' %}
 
-{% block title %}Statistiques{% endblock %}
+{% block title %}Statistiques - Administration{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
-        <h1 class="mb-5">Statistiques du restaurant</h1>
+    <div class="container-fluid min-vh-100 py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.94), rgba(250, 249, 246, 0.94)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="container">
+            <div class="text-start mb-4">
+                <a href="{{ path('app_admin_dashboard') }}" class="btn btn-outline-terracotta px-4 py-2">
+                    <i class="bi bi-arrow-left me-2"></i>Retour au tableau de bord
+                </a>
+            </div>
 
-        <div class="row g-5">
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <h5>Chiffre d'affaires - 7 derniers jours</h5>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="caChart"></canvas>
+            <div class="text-center mb-5">
+                <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                    Statistiques
+                </h1>
+                <p class="text-muted" style="font-family: 'Montserrat', sans-serif; letter-spacing: 1px;">
+                    Performance du restaurant
+                </p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-11 col-xl-10">
+                    <div class="card shadow-lg border-0 rounded-5 overflow-hidden">
+                        <div class="card-header text-white text-center py-4" style="background: var(--terracotta);">
+                            <i class="bi bi-graph-up fs-2 me-2"></i>
+                            <h2 class="h4 mb-0 fw-medium" style="font-family: 'Playfair Display', serif;">
+                                Chiffre d'affaires – 7 derniers jours
+                            </h2>
+                        </div>
+
+                        <div class="card-body p-5">
+                            <div class="chart-container">
+                                <canvas id="caChart"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-{#
-            <div class="col-lg-6">
-                <div class="card">
-                    <div class="card-header bg-success text-white">
-                        <h5>Plats les plus vendus</h5>
-                    </div>
-                    <div class="card-body">
-                        <ol class="list-group list-group-numbered">
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>Couscous au viande</span><strong>87</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>hlelem bel khodhra</span><strong>65</strong>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>nwasser au agneau</span><strong>52</strong>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-            </div>
-        </div>
-#}
-        <div class="mt-4">
-            <a href="{{ path('app_admin_dashboard') }}" class="btn btn-secondary">← Retour</a>
+
+            {# Vous pouvez ajouter d’autres cartes/charts ici plus tard #}
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        new Chart(document.getElementById('caChart'), {
+        const ctx = document.getElementById('caChart').getContext('2d');
+        new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
                 datasets: [{
                     label: 'CA (DT)',
                     data: [980, 1200, 1100, 1350, 1850, 2200, 1950],
-                    borderColor: '#0d6efd',
+                    borderColor: '#C14A3A',
+                    backgroundColor: 'rgba(193, 74, 58, 0.1)',
                     tension: 0.4,
                     fill: true,
-                    backgroundColor: 'rgba(13, 110, 253, 0.1)'
+                    pointRadius: 6,
+                    pointBackgroundColor: '#C14A3A',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 3,
+                    pointHoverRadius: 8,
+                    pointHoverBackgroundColor: '#C14A3A',
+                    pointHoverBorderColor: '#fff'
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: "'Montserrat', sans-serif",
+                                weight: '500'
+                            },
+                            color: '#333333',
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(193, 74, 58, 0.9)',
+                        titleFont: { family: "'Montserrat', sans-serif", size: 14 },
+                        bodyFont: { family: "'Montserrat', sans-serif", size: 13 },
+                        callbacks: {
+                            label: function(context) {
+                                return 'CA : ' + context.parsed.y + ' DT';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => value + ' DT',
+                            color: '#666666',
+                            font: { family: "'Montserrat', sans-serif" }
+                        },
+                        grid: {
+                            color: 'rgba(0,0,0,0.05)',
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#666666',
+                            font: { family: "'Montserrat', sans-serif", weight: '500' }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
             }
         });
     </script>
 
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            color: var(--text);
+            background-color: var(--bg);
+        }
+
+        .btn-outline-terracotta {
+            border: 2px solid var(--terracotta);
+            color: var(--terracotta);
+            transition: all 0.3s ease;
+        }
+        .btn-outline-terracotta:hover {
+            background: var(--terracotta);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.08);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 450px;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+            .display-5 {
+                font-size: 2.8rem;
+            }
+        }
+
+        .rounded-5 { border-radius: 1.5rem; }
+    </style>
 {% endblock %}

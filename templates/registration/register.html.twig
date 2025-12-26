@@ -1,22 +1,153 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Register{% endblock %}
+{% block title %}Inscription - Restaurant Sapori di Sicilia{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
 
 {% block body %}
-    <h1>Register</h1>
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.92), rgba(250, 249, 246, 0.92)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="card shadow-lg border-0" style="max-width: 500px; width: 100%; border-radius: 24px; overflow: hidden;">
+            <div class="card-body p-5 p-lg-5">
+                <div class="text-center mb-5">
+                    <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                        Créer un compte
+                    </h1>
+                    <p class="text-muted" style="font-family: 'Montserrat', sans-serif;">
+                        Rejoignez-nous et réservez facilement votre table
+                    </p>
+                </div>
 
-    {{ form_errors(registrationForm) }}
+                {{ form_start(registrationForm, {'attr': {'class': 'needs-validation', 'novalidate': ''}}) }}
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.nom) }}
-        {{ form_row(registrationForm.prenom) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.tel) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Password'
-        }) }}
-        {{ form_row(registrationForm.agreeTerms) }}
+                {% if form_errors(registrationForm) %}
+                    <div class="alert alert-danger rounded-3 mb-4 py-3 text-center">
+                        {{ form_errors(registrationForm) }}
+                    </div>
+                {% endif %}
 
-        <button type="submit" class="btn">Register</button>
-    {{ form_end(registrationForm) }}
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        {{ form_row(registrationForm.nom, {
+                            'attr': {'class': 'form-control form-control-lg rounded-4', 'placeholder': 'Nom'},
+                            'label': 'Nom'
+                        }) }}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        {{ form_row(registrationForm.prenom, {
+                            'attr': {'class': 'form-control form-control-lg rounded-4', 'placeholder': 'Prénom'},
+                            'label': 'Prénom'
+                        }) }}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    {{ form_row(registrationForm.email, {
+                        'attr': {'class': 'form-control form-control-lg rounded-4', 'placeholder': 'votre@email.com'},
+                        'label': 'Email'
+                    }) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_row(registrationForm.tel, {
+                        'attr': {'class': 'form-control form-control-lg rounded-4', 'placeholder': '+216 ...'},
+                        'label': 'Téléphone'
+                    }) }}
+                </div>
+
+                <div class="mb-4">
+                    {{ form_row(registrationForm.plainPassword, {
+                        'attr': {'class': 'form-control form-control-lg rounded-4', 'placeholder': '••••••••'},
+                        'label': 'Mot de passe'
+                    }) }}
+                </div>
+
+                <div class="mb-4 form-check">
+                    {{ form_row(registrationForm.agreeTerms, {
+                        'label_attr': {'class': 'form-check-label text-muted'},
+                        'attr': {'class': 'form-check-input'}
+                    }) }}
+                </div>
+
+                <button type="submit" class="btn btn-terracotta btn-lg w-100 rounded-4 py-3 fw-medium shadow-sm">
+                    S’inscrire
+                </button>
+
+                {{ form_end(registrationForm) }}
+
+                <div class="text-center mt-4">
+                    <p class="text-muted small">
+                        Déjà un compte ?
+                        <a href="{{ path('app_login') }}" class="text-terracotta text-decoration-none fw-medium">
+                            Se connecter
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg);
+        }
+
+        .btn-terracotta {
+            background: var(--terracotta);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-terracotta:hover {
+            background: #a83a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
+
+        .text-terracotta {
+            color: var(--terracotta);
+        }
+
+        .card {
+            background: white;
+            transition: transform 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .form-control {
+            border: 1px solid #ddd;
+            padding: 0.8rem 1rem;
+        }
+        .form-control:focus {
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 0.2rem rgba(193, 74, 58, 0.15);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--terracotta);
+            border-color: var(--terracotta);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--muted);
+        }
+    </style>
 {% endblock %}

@@ -1,37 +1,141 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Connexion - Restaurant Sapori di Sicilia{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+{% endblock %}
 
 {% block body %}
-    <form method="post">
-        {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-        {% endif %}
+    <div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center py-5"
+         style="background: linear-gradient(rgba(250, 249, 246, 0.92), rgba(250, 249, 246, 0.92)),
+            url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80') center/cover no-repeat;
+            background-attachment: fixed;">
+        <div class="card shadow-lg border-0" style="max-width: 420px; width: 100%; border-radius: 24px; overflow: hidden;">
+            <div class="card-body p-5 p-lg-5">
+                <div class="text-center mb-5">
+                    <h1 class="display-5 fw-light" style="font-family: 'Playfair Display', serif; color: #333;">
+                        Bienvenue
+                    </h1>
+                    <p class="text-muted" style="font-family: 'Montserrat', sans-serif;">
+                        Connectez-vous à votre espace
+                    </p>
+                </div>
 
-        {% if app.user %}
-            <div class="mb-3">
-                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Logout</a>
+                <form method="post">
+                    {% if error %}
+                        <div class="alert alert-danger rounded-3 mb-4 py-3 text-center">
+                            {{ error.messageKey|trans(error.messageData, 'security') }}
+                        </div>
+                    {% endif %}
+
+                    {% if app.user %}
+                        <div class="alert alert-info rounded-3 mb-4 py-3 text-center">
+                            Vous êtes connecté en tant que {{ app.user.userIdentifier }}.
+                            <a href="{{ path('app_logout') }}" class="text-decoration-underline">Déconnexion</a>
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <label for="username" class="form-label fw-medium text-muted">Email</label>
+                        <input type="email"
+                               value="{{ last_username }}"
+                               name="_username"
+                               id="username"
+                               class="form-control form-control-lg rounded-4"
+                               autocomplete="email"
+                               required
+                               autofocus
+                               style="border: 1px solid #ddd; padding: 0.8rem 1rem;">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label fw-medium text-muted">Mot de passe</label>
+                        <input type="password"
+                               name="_password"
+                               id="password"
+                               class="form-control form-control-lg rounded-4"
+                               autocomplete="current-password"
+                               required
+                               style="border: 1px solid #ddd; padding: 0.8rem 1rem;">
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="_remember_me" id="_remember_me">
+                            <label class="form-check-label text-muted" for="_remember_me">
+                                Se souvenir de moi
+                            </label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-terracotta btn-lg w-100 rounded-4 py-3 fw-medium shadow-sm" type="submit">
+                        Se connecter
+                    </button>
+
+                    <div class="text-center mt-4">
+                        <p class="text-muted small">
+                            Pas encore de compte ?
+                            <a href="{{ path('app_register') }}" class="text-terracotta text-decoration-none fw-medium">
+                                S’inscrire
+                            </a>
+                        </p>
+                    </div>
+                </form>
             </div>
-        {% endif %}
+        </div>
+    </div>
 
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
-        <label for="username">Email</label>
-        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
-        <label for="password">Password</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
-        <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
+    <style>
+        :root {
+            --terracotta: #C14A3A;
+            --olive: #6B8E23;
+            --gold: #D4AF37;
+            --text: #333333;
+            --muted: #666666;
+            --bg: #FAF9F6;
+        }
 
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg);
+        }
 
+        .btn-terracotta {
+            background: var(--terracotta);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-terracotta:hover {
+            background: #a83a2b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(193, 74, 58, 0.3);
+        }
 
+        .text-terracotta {
+            color: var(--terracotta);
+        }
 
-            <div class="checkbox mb-3">
-                <input type="checkbox" name="_remember_me" id="_remember_me">
-                <label for="_remember_me">Remember me</label>
-            </div>
+        .card {
+            background: white;
+            transition: transform 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
 
+        .form-control:focus {
+            border-color: var(--terracotta);
+            box-shadow: 0 0 0 0.2rem rgba(193, 74, 58, 0.15);
+        }
 
-        <button class="btn btn-lg btn-primary" type="submit">
-            Sign in
-        </button>
-    </form>
+        .form-check-input:checked {
+            background-color: var(--terracotta);
+            border-color: var(--terracotta);
+        }
+    </style>
 {% endblock %}
