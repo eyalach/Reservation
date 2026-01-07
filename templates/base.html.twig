@@ -10,15 +10,13 @@
 </head>
 <body class="bg-light">
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark mb-4"
+     style="background-color: #C14A3A;">
     <div class="container">
-        <a class="navbar-brand" href="{{ path('app_home') }}">Sapori di Sicilia</a>            {% if app.user %}
-                <a class="nav-link">{{ app.user.prenom }} {{ app.user.nom }}</a>
-                <a class="nav-link" href="{{ path('app_logout') }}">Déconnexion</a>
-            {% endif %}
-        </div>
+        <a class="navbar-brand" href="{{ path('app_home') }}">Home</a>
     </div>
 </nav>
+
 
 <div class="container">
     {% for label, messages in app.flashes %}
